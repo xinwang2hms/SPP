@@ -1,0 +1,5 @@
+--Oct 7, 2013
+* Chance S4 methods 'get.bd.chrtcs' and 'set.bd.chrtcs' to reference methods
+* Move the method to compute smoothed tag density from ChIPSeqProfile 
+to alignedTags class. 
+* Add new class IPConf to assemble all sorts of ChIP-Seq profiles. 

@@ -1,0 +1,27 @@
+useDynLib(spp)
+importFrom("multicore", "mclapply")
+exportClasses(
+	"ChIPSeqProfile", 
+	"smoothedTagDensity",	
+	"AlignedTags",
+	"BAMTags", 
+	"BowtieTags", 
+	"smoothedEnrich", 
+	"conservEnrich", 
+	"broadRegion", 
+	"bindingPos", 
+	"IPconf"
+)
+
+export(
+	"ChIPSeqProfile", 
+	"smoothedTagDensity",	
+	"AlignedTags",
+	"BAMTags", 
+	"BowtieTags", 
+	"smoothedEnrich", 
+	"conservEnrich", 
+	"broadRegion", 
+	"bindingPos", 
+	"IPconf"
+)

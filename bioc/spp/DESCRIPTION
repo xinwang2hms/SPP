@@ -1,0 +1,17 @@
+Package: spp
+Type: Package
+Title: An R package for ChIP-Seq data analysis
+Version: 0.0.1
+Date: 2013-10-26
+Author: Xin Wang <xin_wang@hms.harvard.edu>, Peter Kharchenko <peter.kharchenko@post.harvard.edu>
+Maintainer: Xin Wang <xin_wang@hms.harvard.edu>
+Imports: caTools, methods, multicore
+Depends: R (>= 3.0.1)
+Description: This package provides reference classes and methods for analyzing ChIP-Seq data 
+License: GPL-2
+biocViews: Sequencing, HighThroughputSequencing, ChIPseq
+Collate: internal.R classUnions.R AllGenerics.R ChIPSeqProfile.R 
+		smoothedTagDensity.R AlignedTags.R BAMTags.R BowtieTags.R 
+		smoothedEnrich.R broadRegion.R conservEnrich.R bindingPos.R 
+		IPconf.R
+LazyLoad: yes
