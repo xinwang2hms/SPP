@@ -4,11 +4,11 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="SPP : An R package for ChIP-seq data analysis" />
+    <meta name="description" content="SPP v2 : An R package for ChIP-seq data analysis" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>SPP</title>
+    <title>SPP v2</title>
   </head>
 
   <body>
@@ -18,7 +18,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/xinwang2hms/SPP">View on GitHub</a>
 
-          <h1 id="project_title">SPP</h1>
+          <h1 id="project_title">SPP v2</h1>
           <h2 id="project_tagline">An R package for ChIP-seq data analysis</h2>
 
             <section id="downloads">
@@ -32,41 +32,53 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a name="welcome" class="anchor" href="#welcome"><span class="octicon octicon-link"></span></a><em>Welcome</em>
+<a name="welcome" class="anchor" href="#welcome"><span class="octicon octicon-link"></span></a><strong>Welcome</strong>
 </h3>
 
-<p>TBD ...</p>
+<p>This is a site for an improved version of the <a href="http://compbio.med.harvard.edu/Supplements/ChIP-seq/tutorial.html">spp package</a>, initially developed by Dr. Peter Kharchenko, for analyzing ChIP-Seq data. For more details about the biological background and computation methods employed for calling binding positions, please refer to [1].</p>
 
 <h3>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a><em>Introduction</em>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a><strong>Introduction</strong>
 </h3>
 
-<p>TBD ...</p>
+<p>The motivation of developing spp v2 is to improve the original spp package such that it can meet current user requests and cope with upcoming challenges. Compared to the original spp package, the new version will be dedicated to improve the following aspects:</p>
+
+<ul>
+<li>Restructuring the core design based on reference classes</li>
+<li>Expanding functionalities such as quality control and dealing with replicates</li>
+<li>Improving the visualization, import and export functionalities </li>
+<li>Enhancing the efficiency of parallel computing </li>
+<li>Improving memory usage and control</li>
+<li>Enabling live computing</li>
+</ul><h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a><strong>Installation</strong>
+</h3>
+
+<p>The spp v2 package complies with the bioconductor format, and will be submitted to bioconductor soon. In the future, just use 'biocLite' to install this package. For now, it can only be installed as a source package, so either use 'install.package' inside R or 'R CMD INSTALL' in command line. </p>
+
+<p>Note that no matter how you want to install spp v2, please pre-install <a href="http://www.boost.org/">boost c++</a> in order to compile the embedded c++ code. </p>
 
 <h3>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a><em>Installation</em>
-</h3>
-
-<p>TBD ...</p>
-
-<h3>
-<a name="developer-team-and-contributors" class="anchor" href="#developer-team-and-contributors"><span class="octicon octicon-link"></span></a><em>Developer team and contributors</em>
-</h3>
+<a name="developer-team-and-contributors" class="anchor" href="#developer-team-and-contributors"><span class="octicon octicon-link"></span></a>Developer team and contributors</h3>
 
 <p><a href="https://www.researchgate.net/profile/Xin_Wang36">Xin Wang</a>, Francesco Ferrari, Nils Gehlenborg, Luca Petiti and <a href="http://pklab.med.harvard.edu/people.html">Peter Kharchenko</a> (PI)</p>
 
 <h3>
-<a name="contact" class="anchor" href="#contact"><span class="octicon octicon-link"></span></a><em>Contact</em>
-</h3>
+<a name="contact" class="anchor" href="#contact"><span class="octicon octicon-link"></span></a>Contact</h3>
 
-<p>Please contact Xin Wang (<a href="mailto:xin_wang@hms.harvard.edu">xin_wang@hms.harvard.edu</a>) or Peter Kharchenko (<a href="mailto:peter.kharchenko@post.harvard.edu">peter.kharchenko@post.harvard.edu</a>) should you have any question. </p>
+<p>Please contact Xin Wang (<a href="mailto:xin_wang@hms.harvard.edu">xin_wang@hms.harvard.edu</a>) or Peter Kharchenko (<a href="mailto:peter.kharchenko@post.harvard.edu">peter.kharchenko@post.harvard.edu</a>) if you have any comments, suggestions or find any bug in the package. </p>
+
+<h3>
+<a name="references" class="anchor" href="#references"><span class="octicon octicon-link"></span></a>REFERENCES</h3>
+
+<p>[1] Kharchenko PV, Tolstorukov MY, Park PJ. Design and analysis of ChIP-seq experiments for DNA-binding proteins. Nat Biotechnol. 2008 Dec;26(12):1351-9</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">SPP maintained by <a href="https://github.com/xinwang2hms">xinwang2hms</a></p>
+        <p class="copyright">SPP v2 maintained by <a href="https://github.com/xinwang2hms">xinwang2hms</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
