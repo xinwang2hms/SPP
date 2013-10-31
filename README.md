@@ -21,7 +21,7 @@ or 'install.packages("spp_0.0.1.tar.gz", type="source")' in R console.
 * Please go to the wiki site: https://github.com/xinwang2hms/SPP/wiki to find 
 a demonstration of ChIP-seq data analysis on ENCODE data sets.
 
-* The current spp has only been tested in Ubuntu linux. We are now testing on 
+* The current spp has only been tested on Ubuntu linux. We are now testing on 
 Mac OS and Windows. 
 
 * Please contact xin_wang@hms.harvard.edu to report bugs! We are also open to comments 
