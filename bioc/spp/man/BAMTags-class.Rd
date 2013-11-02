@@ -51,11 +51,11 @@ below for details).
 		}
 		\item{\code{remove.local.tag.anomalies}}{
 		}		
-		\item{\code{compute.bd.chrtcs}}{
+		\item{\code{compute.cross.cor}}{
 		}
-		\item{\code{get.bd.chrtcs}}{
+		\item{\code{get.cross.cor}}{
 		}	
-		\item{\code{set.bd.chrtcs}}{
+		\item{\code{set.cross.cor}}{
 		}	
 		\item{\code{get.smoothed.density}}{
 		}	

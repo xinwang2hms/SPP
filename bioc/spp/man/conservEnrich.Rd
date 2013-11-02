@@ -2,7 +2,7 @@
 \docType{class}
 \alias{conservEnrich-class}
 \alias{conservEnrich}
-\alias{get,conservEnrich-method}
+\alias{get.profile,conservEnrich-method}
 \title{
 A reference class representing conserved fold enrichment profiles
 }
@@ -48,10 +48,7 @@ Objects of class \code{conservEnrich} can be created from
 		}			
 		\item{\code{view}}{
 		}
-	}
-	Methods specific to \code{conservEnrich}:
-	\describe{
-		\item{\code{get}}{
+		\item{\code{get.profile}}{
 		}
 	}
 }

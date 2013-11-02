@@ -1,9 +1,9 @@
 ##class for point binding position profile
 bindingPos = setRefClass(
 	Class = "bindingPos",
-##	fields = list(
-##
-##	), 
+	fields = list(
+		.param.updated = "logical"
+	), 
 	contains = "ChIPSeqProfile"
 )
 bindingPos$methods(
@@ -13,6 +13,21 @@ bindingPos$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
+#		callSuper(...)
+#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
+#	.ChIP <<- NULL
+#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
+#	.Input <<- NULL
+#		if(is.null(.ChIP)) {
+#			if(!is.null(ChIP))
+#				.ChIP <<- ChIP
+#		}
+#		if(is.null(.Input)) {
+#			if(!is.null(Input))
+#				.Input <<- Input
+#		}
+#		if(is.null(.profile))
+#			.profile <<- NULL
 		
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
@@ -43,6 +58,30 @@ bindingPos$methods(
 				if(length(known_params) > 0) 
 					.param[known_params] <<- param[known_params]
 			}			
+		if(!is.null(.ChIP)) {
+			##
+			if(is.null(.param$tag_shift)) {
+##				cat("setting tag shift: tag_shift ")
+				.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
+##				cat("=", .param$tag_shift, " [done]\n")
+			}
+			##chrl		
+			##determine common range
+			if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
+##				cat("setting chromosomes: chrl ")
+				.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
+				names(.param$chrl) <<- .param$chrl
+##				cat("[done]\n")
+			}
+			##!
+			if(is.null(.param$whs)) {
+##				cat("setting window half size: bg_weight ")
+				.param$whs <<- .ChIP$bd_chrtcs$whs
+##				cat("=", round(.param$whs, 2), "[done]\n")
+			}
+		}
+			.param.updated <<- TRUE
+		##!							
 		} 
 		##--copied object
 	}
@@ -51,23 +90,9 @@ bindingPos$methods(
 bindingPos$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
-		##
-		if(is.null(.param$tag_shift)) {
-			cat("setting tag shift: tag_shift ")
-			.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
-			cat("=", .param$tag_shift, " [done]\n")
-		}
 		##method
 		if(! .param$method%in%c("tag.wtd", "tag.lwcc"))
 			stop("'method' should be either 'tag.wtd' or 'tag.lwcc'!")
-		##chrl		
-		##determine common range
-		if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
-			cat("setting chromosomes: chrl ")
-			.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
-			names(.param$chrl) <<- .param$chrl
-			cat("[done]\n")
-		}
 #		##rngl
 #		if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
 #			cat("setting chromosome ranges: rngl ")
@@ -86,13 +111,7 @@ bindingPos$methods(
 #				.Input$tags, background.density.scaling=.param$bg_density_scaling)
 #			cat("=", round(.param$bg_weight, 2), "[done]\n")
 #		}		
-		##!
-		if(is.null(.param$whs)) {
-			cat("setting window half size: bg_weight ")
-			.param$whs <<- .ChIP$bd_chrtcs$whs
-			cat("=", round(.param$whs, 2), "[done]\n")
-		}
-		##!							
+		.param.updated <<- TRUE
 	}
 )
 
@@ -211,14 +230,17 @@ bindingPos$methods(
 				return(npl)
 			})		
 			cat("[done]\n")		
-		}	
+		}
+		##add parameter list to .profile
+		.profile$param <<- .param
+		.param.updated <<- FALSE	
 	}
 )
 
 bindingPos$methods(
-	get = function(..., verbose=FALSE) {
+	get.profile = function(..., verbose=FALSE) {
 		##call 'identify' if the profile does not exist
-		if(is.null(.profile))
+		if(is.null(.profile) || .param.updated)
 			.self$identify(verbose=verbose)
 		return(.profile)
 	}
@@ -232,7 +254,7 @@ bindingPos$methods(
 		if(! sort_by %in% c("chr", "score", "Evalue", "FDR"))
 			stop("'sort_by' should be one of 'chr', 'score', 'Evalue' and 'FDR'!")
 		##call 'get' -> 'identify' to get the profile if not exist
-		if(is.null(.profile))
+		if(is.null(.profile) || .param.updated)
 			.self$identify()
 		chrl <- names(.profile$npl) 
 		names(chrl) <- chrl
@@ -279,7 +301,7 @@ bindingPos$methods(
 			...) {
 		if(is.null(chr) || is.null(start) || is.null(end)) 
 			stop("Please specify 'chr', 'start' and 'end'!")
-		if(is.null(.profile))
+		if(is.null(.profile) || .param.updated)
 			.self$identify()
 		if(! chr %in% names(.profile$npl))
 			stop(paste("No significant binding positions in ", chr, 
@@ -300,7 +322,7 @@ bindingPos$methods(
 		##check sort.by
 		if(! sort_by %in% c("chr", "score", "FDR"))
 			stop("'sort_by' should be one of 'chr', 'score', and 'FDR'!")
-		if(is.null(.profile)) {
+		if(is.null(.profile) || .param.updated) {
 			if(!.param$add_broad_peak_reg)
 				.param$add_broad_peak_reg <<- TRUE
 			.self$identify()	
@@ -350,7 +372,7 @@ bindingPos$methods(
 bindingPos$methods(
 	write.narrowpeak = function(file, ...) {
 ##		md <- .self$get.narrowpeak(...)
-		if(is.null(.profile)) {
+		if(is.null(.profile) || .param.updated) {
 			if(!.param$add_broad_peak_reg)
 				.param$add_broad_peak_reg <<- TRUE
 			.self$identify()	

@@ -1,9 +1,9 @@
 ##class for broad region profile
 broadRegion = setRefClass(
 	Class = "broadRegion",
-##	fields = list(
-##
-##	), 
+	fields = list(
+		.param.updated = "logical"
+	), 
 	contains = "ChIPSeqProfile"
 )
 broadRegion$methods(
@@ -13,6 +13,21 @@ broadRegion$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
+#		callSuper(...)
+#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
+#	.ChIP <<- NULL
+#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
+#	.Input <<- NULL
+#		if(is.null(.ChIP)) {
+#			if(!is.null(ChIP))
+#				.ChIP <<- ChIP
+#		}
+#		if(is.null(.Input)) {
+#			if(!is.null(Input))
+#				.Input <<- Input
+#		}
+#		if(is.null(.profile))
+#			.profile <<- NULL
 		
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
@@ -34,54 +49,52 @@ broadRegion$methods(
 				if(length(known_params) > 0) 
 					.param[known_params] <<- param[known_params]
 			}			
+		if(!is.null(.param)) {
+			##
+			if(is.null(.param$tag_shift)) {
+##				cat("setting tag shift: tag_shift ")
+				.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
+##				cat("=", .param$tag_shift, " [done]\n")
+			}
+			##		
+			##chrl		
+			##determine common range
+			if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
+##				cat("setting chromosomes: chrl ")
+				.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
+				names(.param$chrl) <<- .param$chrl
+##				cat("[done]\n")
+			}
+			##rngl
+			if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
+##				cat("setting chromosome ranges: rngl ")
+				.param$rngl <<- lapply(.param$chrl,function(chr) 
+					range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+					range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+##				cat("[done]\n")
+			} else {
+				.param$chrl <<- names(.param$rngl)
+				names(.param$chrl) <<- .param$chrl
+			}
+		}
+			.param.updated <<- TRUE
 		} 
 		##--copied object			
 	}
 )
 
+
 broadRegion$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
-		##
-		if(is.null(.param$tag_shift)) {
-			cat("setting tag shift: tag_shift ")
-			.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
-			cat("=", .param$tag_shift, " [done]\n")
-		}
-		##		
-		##chrl		
-		##determine common range
-		if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
-			cat("setting chromosomes: chrl ")
-			.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
-			names(.param$chrl) <<- .param$chrl
-			cat("[done]\n")
-		}
-		##rngl
-		if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
-			cat("setting chromosome ranges: rngl ")
-			.param$rngl <<- lapply(.param$chrl,function(chr) 
-				range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
-				range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
-			cat("[done]\n")
-		} else {
-			.param$chrl <<- names(.param$rngl)
-			names(.param$chrl) <<- .param$chrl
-		}
-		##bg_weight
-		if(is.null(.param$bg_weight)) {
-			cat("estimating background weight: bg_weight ")
-			.param$bg_weight <<- dataset.density.ratio(.ChIP$tags, 
-				.Input$tags, background.density.scaling=.param$bg_density_scaling)
-			cat("=", round(.param$bg_weight, 2), "[done]\n")
-		}							
+		.param.updated <<- TRUE
 	}
 )
 
 broadRegion$methods(
 	write.broadpeak = function(file, ...) {
 	
-	if(is.null(.profile))
+	if(is.null(.profile) || .param.updated)
 		.self$identify()
 	chrl <- names(.profile)
 	names(chrl) <- chrl
@@ -102,10 +115,15 @@ broadRegion$methods(
 		if(is.null(chr) || is.null(start) || is.null(end)) 
 			stop("Please specify 'chr', 'start' and 'end'!")
 		##!dirty code
+		temp.chrl <- .param$chrl
+		temp.rngl <- .param$rngl
 		.param$chrl <<- chr
 		.param$rngl <<- list(c(start, end))
 		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
-		.self$identify()
+		if(is.null(.profile))
+			.self$identify()
+		.param$chrl <<- temp.chrl
+		.param$rngl <<- temp.rngl
 		temp_profile <- .profile
 ##		dev.new(width=16, height=2.5)
 		par(mar=c(4, 2.5, 1, 1))
@@ -130,6 +148,13 @@ broadRegion$methods(
 ##			.Input$tags, background.density.scaling=.param$bg_density_scaling)
 
 
+		##bg_weight
+		if(is.null(.param$bg_weight)) {
+			cat("estimating background weight: bg_weight ")
+			.param$bg_weight <<- dataset.density.ratio(.ChIP$tags, 
+				.Input$tags, background.density.scaling=.param$bg_density_scaling)
+			cat("=", round(.param$bg_weight, 2), "[done]\n")
+		}							
 		##filter tags
 		rngl <- .param$rngl
 		
@@ -176,15 +201,17 @@ broadRegion$methods(
 				return(d)
 			}
 		})		
+		.profile$param <<- .param
+		.param.updated <<- FALSE
 	}
 )
 
 broadRegion$methods(
-	get = function(sort_by="chr", ...) {
+	get.profile = function(sort_by="chr", ...) {
 	
 	if(! sort_by %in% c("chr", "score"))
 		stop("'sort_by' should be one of 'chr' and 'score'")
-	if(is.null(.profile))
+	if(is.null(.profile)  || .param.updated)
 		.self$identify()
 	chrl <- names(.profile)
 	names(chrl) <- chrl

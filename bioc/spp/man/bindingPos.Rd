@@ -34,6 +34,9 @@ Objects of class \code{bindingPos} can be created from
 		\item{\code{.param}:}{
 		a list of parameters used to compute profile
 		}
+		\item{\code{.param.updated}:}{
+		a logical value indicating whether the parameter has been updated
+		}
 	}
 }
 \section{Methods}{
@@ -48,6 +51,8 @@ Objects of class \code{bindingPos} can be created from
 		\item{\code{get.param}}{
 		}			
 		\item{\code{view}}{
+		}
+		\item{\code{get.profile}}{
 		}
 	}
 	Methods specific to \code{bindingPos}:

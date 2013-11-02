@@ -9,7 +9,6 @@ ChIPSeqProfile = setRefClass(
 		.param = "list_Or_NULL"			##parameters
 	)
 )
-
 ChIPSeqProfile$methods(
 	initialize = function(..., ChIP=NULL, Input=NULL) {
 		.ChIP <<- NULL
@@ -84,7 +83,7 @@ ChIPSeqProfile$methods(
 		if(!is(.self, "smoothedEnrich") && !is(.self, "conservEnrich")
 			&& !is(.self, "smoothedTagDensity"))
 		stop("This function only supports objects of class 'smoothedEnrich', 'conservEnrich' and 'smoothedTagDensity!'")
-		dat <- .self$get()
+		dat <- .self$get.profile()
 		invisible(lapply(.param$chrl,function(chr) {
 			bdiff <- dat[[chr]]
 			ind <- seq(1,length(bdiff$x))
@@ -107,7 +106,7 @@ ChIPSeqProfile$methods(
 )
 
 ChIPSeqProfile$methods(
-	write.tdf = function(file, name, feature, save.wig=F, zip.wig=T) {
+	write.tdf = function(file, name, feature, save_wig=F, zip_wig=T) {
 		if(!is(.self, "smoothedEnrich") && !is(.self, "conservEnrich")
 			&& !is(.self, "smoothedTagDensity"))
 		stop("This function only supports objects of class 'smoothedEnrich', 'conservEnrich' and 'smoothedTagDensity!'")
@@ -119,9 +118,9 @@ ChIPSeqProfile$methods(
 		paste(igvtools, "-f min,max,mean", tfile, file)
 		paste(igvtools,"toTDF -f min,max,mean",tfile,file,.ChIP$genome_build)
 		tryCatch(system(paste(igvtools,"toTDF -f min,max,mean",tfile,file,.ChIP$genome_build)))
-		if(!save.wig) {
+		if(!save_wig) {
 			tryCatch(system(paste("rm",tfile)), error=function(e) {print(e)})
-		} else if(zip.wig) {
+		} else if(zip_wig) {
 			zf <- paste(file,"zip",sep=".")
                         tryCatch(system(paste("zip \"",zf,"\" \"",file,"\"",sep="")),
                                 error=function(e) {print(e)})
@@ -167,23 +166,37 @@ ChIPSeqProfile$methods(
 #		}
 		##message about parameters
 		if(!is.null(.param)) {
-			cat("Parameters:\n")
-			cat(paste("  ", paste(paste(names(.param), .param, sep="="), 
-				collapse=', '), "\n", sep=""))
+##			cat("Parameters:\n")
+##			cat(paste("  ", paste(paste(names(.param), .param, sep="="), 
+##				collapse=', '), "\n", sep=""))
 		}	
 	}
 )
+ChIPSeqProfile$methods(
+	get.profile = function(...) {
+	return(.profile)
+})
 
 ChIPSeqProfile$methods(
         view = function(chr=NULL, start=NULL, end=NULL, col_sig="red", 
 			col_bg="green", ...) {
+		if(!is(.self, "smoothedEnrich") && !is(.self, "conservEnrich")
+			&& !is(.self, "smoothedTagDensity"))
+		stop("This function only supports objects of class 'smoothedEnrich', 'conservEnrich' and 'smoothedTagDensity!'")
 		if(is.null(chr) || is.null(start) || is.null(end)) 
 			stop("Please specify 'chr', 'start' and 'end'!")
 		##!dirty code
+		##cache chrl and rngl
+		temp.chrl <- .param$chrl
+		temp.rngl <- .param$rngl
+		##temporarily set chrl and rngl
 		.param$chrl <<- chr
 		.param$rngl <<- list(c(start, end))
 		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
-		temp_profile <- .self$get()
+		temp_profile <- .self$get.profile()
+		##revert chrl and rngl
+		.param$chrl <<- temp.chrl
+		.param$rngl <<- temp.rngl
 ##		dev.new(width=16, height=2.5)
 		par(mar=c(4, 2.5, 1, 1))
 		plot(temp_profile[[chr]][, 1], temp_profile[[chr]][, 2], type='h', 

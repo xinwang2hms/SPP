@@ -14,7 +14,21 @@ conservEnrich$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
-		
+#		callSuper(...)
+#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
+#	.ChIP <<- NULL
+#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
+#	.Input <<- NULL
+#		if(is.null(.ChIP)) {
+#			if(!is.null(ChIP))
+#				.ChIP <<- ChIP
+#		}
+#		if(is.null(.Input)) {
+#			if(!is.null(Input))
+#				.Input <<- Input
+#		}
+#		if(is.null(.profile))
+#			.profile <<- NULL
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
@@ -35,6 +49,34 @@ conservEnrich$methods(
 				if(length(known_params) > 0) 
 					.param[known_params] <<- param[known_params]
 			}			
+		if(!is.null(.ChIP)) {
+			##
+			if(is.null(.param$tag_shift)) {
+##				cat("setting tag shift: tag_shift ")
+				.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
+##				cat("=", .param$tag_shift, " [done]\n")
+			}
+			##		
+			##chrl		
+			##determine common range
+			if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
+##				cat("setting chromosomes: chrl ")
+				.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
+				names(.param$chrl) <<- .param$chrl
+##				cat("[done]\n")
+			}
+			##rngl
+			if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
+##				cat("setting chromosome ranges: rngl ")
+				.param$rngl <<- lapply(.param$chrl,function(chr) 
+					range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+					range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+##				cat("[done]\n")
+			} else {
+				.param$chrl <<- names(.param$rngl)
+				names(.param$chrl) <<- .param$chrl
+			}
+		}
 		} 
 		##--copied object		
 	}
@@ -42,46 +84,21 @@ conservEnrich$methods(
 conservEnrich$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
-		##
-		if(is.null(.param$tag_shift)) {
-			cat("setting tag shift: tag_shift ")
-			.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
-			cat("=", .param$tag_shift, " [done]\n")
-		}
-		##		
-		##chrl		
-		##determine common range
-		if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
-			cat("setting chromosomes: chrl ")
-			.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
-			names(.param$chrl) <<- .param$chrl
-			cat("[done]\n")
-		}
-		##rngl
-		if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
-			cat("setting chromosome ranges: rngl ")
-			.param$rngl <<- lapply(.param$chrl,function(chr) 
-				range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
-				range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
-			cat("[done]\n")
-		} else {
-			.param$chrl <<- names(.param$rngl)
-			names(.param$chrl) <<- .param$chrl
-		}
+	}
+)
+##compute conservative fold enrichment
+##!filtering step of tags should be moved to initialization
+conservEnrich$methods(
+	get.profile = function() {
+
 		##bg_weight
 		if(is.null(.param$bg_weight)) {
 			cat("estimating background weight: bg_weight ")
 			.param$bg_weight <<- dataset.density.ratio(.ChIP$tags, 
 				.Input$tags, background.density.scaling=.param$bg_density_scaling)
 			cat("=", round(.param$bg_weight, 2), "[done]\n")
-		}							
-	}
-)
-##compute conservative fold enrichment
-##!filtering step of tags should be moved to initialization
-conservEnrich$methods(
-	get = function() {
-
+		}
+							
 		profile <- lapply(.param$chrl, function(chr) {
 			if(is.null(.Input$tags[[chr]])) 
 				bt <- c() 

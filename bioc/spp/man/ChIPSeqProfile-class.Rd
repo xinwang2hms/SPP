@@ -50,6 +50,8 @@ subclasses such as \code{\link[spp:smoothedEnrich]{smoothedEnrich}}.
 		}			
 		\item{\code{view}}{
 		}
+		\item{\code{get.profile}}{
+		}
 	}
 }
 \seealso{

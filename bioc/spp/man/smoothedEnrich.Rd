@@ -2,7 +2,7 @@
 \docType{class}
 \alias{smoothedEnrich-class}
 \alias{smoothedEnrich}
-\alias{get,smoothedEnrich-method}
+\alias{get.profile,smoothedEnrich-method}
 \title{
 A reference class representing smoothed enrichment profiles
 }
@@ -48,10 +48,7 @@ Objects of class \code{smoothedEnrich} can be created from
 		}			
 		\item{\code{view}}{
 		}
-	}
-	Methods specific to \code{smoothedEnrich}:
-	\describe{
-		\item{\code{get}}{
+		\item{\code{get.profile}}{
 		}
 	}
 }

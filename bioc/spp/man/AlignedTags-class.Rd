@@ -8,8 +8,8 @@
 \alias{get.smoothed.density,AlignedTags-methods}
 \alias{view.cross.cor,AlignedTags-methods}
 \alias{remove.local.tag.anomalies,AlignedTags-methods}
-\alias{get.bd.chrtcs,AlignedTags-methods}
-\alias{set.bd.chrtcs,AlignedTags-methods}
+\alias{get.cross.cor,AlignedTags-methods}
+\alias{set.cross.cor,AlignedTags-methods}
 \title{
 A reference class representing aligned tags
 }

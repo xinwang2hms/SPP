@@ -16,7 +16,6 @@ IPconf = setRefClass(
 IPconf$methods(
 	initialize = function(..., ChIP=NULL, Input=NULL) {
 		callSuper(...)
-
 		##check input args
 		if(!is(ChIP, "AlignedTags_Or_NULL") || 
 			!is(Input, "AlignedTags_Or_NULL"))
@@ -37,19 +36,23 @@ IPconf$methods(
 		if(is.null(smoothed_enrichment))			##new
 			smoothed_enrichment <<- smoothedEnrich(ChIP=ChIP, Input=Input)
 		else 										##copy										
-			smoothed_enrichment <<- smoothedEnrich(.self$smoothed_enrichment)
+##			smoothed_enrichment <<- smoothedEnrich(.self$smoothed_enrichment)
+			smoothed_enrichment <<- smoothedEnrich(smoothed_enrichment)
 		if(is.null(conserved_enrichment))			##new
 			conserved_enrichment <<- conservEnrich(ChIP=ChIP, Input=Input)
 		else 										##copy
-			conserved_enrichment <<- conservEnrich(.self$smoothed_enrichment)
+##			conserved_enrichment <<- conservEnrich(.self$smoothed_enrichment)
+			conserved_enrichment <<- conservEnrich(smoothed_enrichment)
 		if(is.null(broad_region))					##new
 			broad_region <<- broadRegion(ChIP=ChIP, Input=Input)
 		else 										##copy
+##			broad_region <<- broadRegion(.self$broad_region)			
 			broad_region <<- broadRegion(.self$broad_region)			
 		if(is.null(binding_position))				##new
 			binding_position <<- bindingPos(ChIP=ChIP, Input=Input)
 		else 										##copy
-			binding_position <<- bindingPos(.self$binding_position)	
+##			binding_position <<- bindingPos(.self$binding_position)	
+			binding_position <<- bindingPos(binding_position)	
 	}
 )
 IPconf$methods(

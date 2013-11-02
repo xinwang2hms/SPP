@@ -2,7 +2,7 @@
 \docType{class}
 \alias{smoothedTagDensity-class}
 \alias{smoothedTagDensity}
-\alias{get,smoothedTagDensity-method}
+\alias{get.profile,smoothedTagDensity-method}
 \title{
 A reference class representing smoothed tag density profiles
 }
@@ -48,10 +48,7 @@ Objects of class \code{smoothedTagDensity} can be created from
 		}			
 		\item{\code{view}}{
 		}
-	}
-	Methods specific to \code{smoothedTagDensity}:
-	\describe{
-		\item{\code{get}}{
+		\item{\code{get.profile}}{
 		}
 	}
 }

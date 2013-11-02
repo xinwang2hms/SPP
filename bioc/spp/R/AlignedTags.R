@@ -72,9 +72,7 @@ AlignedTags$methods(
 			quality[setdiff(CHRs, chrs)] <<- NULL
 			if(length(names)>0)
 				names[setdiff(CHRs, chrs)] <<- NULL			
-		} else if(is(filter, "data.frame"))
-			bed <- filter						##Yet to be done
-		else
+		} else
 			stop("'filter' should either be a vector of chromosomes or a bed data frame")
 	}
 )
@@ -312,13 +310,13 @@ AlignedTags$methods(
 
 ##retrieve binding characteristics
 AlignedTags$methods(
-	get.bd.chrtcs = function() {
+	get.cross.cor = function() {
 		return(bd_chrtcs)
 	}
 )
 ##set binding characteristics
 AlignedTags$methods(
-	set.bd.chrtcs = function(value) {
+	set.cross.cor = function(value) {
 		bd_chrtcs <<- value
 	}
 )

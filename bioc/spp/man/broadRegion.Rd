@@ -3,7 +3,7 @@
 \alias{broadRegion-class}
 \alias{broadRegion}
 \alias{identify,broadRegion-method}
-\alias{get,broadRegion-method}
+\alias{get.profile,broadRegion-method}
 \alias{write.broadpeak,broadRegion-method}
 \title{
 A reference class representing broad region profiles
@@ -31,6 +31,9 @@ Objects of class \code{broadRegion} can be created from
 		\item{\code{.param}:}{
 		a list of parameters used to compute profile
 		}
+		\item{\code{.param.updated}:}{
+		a logical value indicating whether the parameter has been updated
+		}
 	}
 }
 \section{Methods}{
@@ -49,6 +52,8 @@ Objects of class \code{broadRegion} can be created from
 		\item{\code{write.tdf}}{
 		}			
 		\item{\code{view}}{
+		}
+		\item{\code{get.profile}}{
 		}
 	}
 	Methods specific to \code{broadRegion}:
