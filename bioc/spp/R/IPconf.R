@@ -8,7 +8,7 @@ IPconf = setRefClass(
 		.ChIP = "AlignedTags_Or_NULL", 	##AlignedTags object for ChIP
 		.Input = "AlignedTags_Or_NULL", 	##AlignedTags object for Input	
 		smoothed_enrichment = "smoothedEnrich_Or_NULL", 
-		conserved_enrichment = "conservEnrich_Or_NULL", 
+		conserv_enrichment = "conservEnrich_Or_NULL", 
 		broad_region = "broadRegion_Or_NULL", 
 		binding_position = "bindingPos_Or_NULL"
 	)
@@ -38,11 +38,11 @@ IPconf$methods(
 		else 										##copy										
 ##			smoothed_enrichment <<- smoothedEnrich(.self$smoothed_enrichment)
 			smoothed_enrichment <<- smoothedEnrich(smoothed_enrichment)
-		if(is.null(conserved_enrichment))			##new
-			conserved_enrichment <<- conservEnrich(ChIP=ChIP, Input=Input)
+		if(is.null(conserv_enrichment))			##new
+			conserv_enrichment <<- conservEnrich(ChIP=ChIP, Input=Input)
 		else 										##copy
-##			conserved_enrichment <<- conservEnrich(.self$smoothed_enrichment)
-			conserved_enrichment <<- conservEnrich(smoothed_enrichment)
+##			conserv_enrichment <<- conservEnrich(.self$smoothed_enrichment)
+			conserv_enrichment <<- conservEnrich(smoothed_enrichment)
 		if(is.null(broad_region))					##new
 			broad_region <<- broadRegion(ChIP=ChIP, Input=Input)
 		else 										##copy

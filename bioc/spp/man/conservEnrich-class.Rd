@@ -4,10 +4,10 @@
 \alias{conservEnrich}
 \alias{get.profile,conservEnrich-method}
 \title{
-A reference class representing conserved fold enrichment profiles
+A reference class representing conservative fold enrichment profiles
 }
 \description{
-The reference class represents conserved fold enrichment profiles
+The reference class represents conservative fold enrichment profiles
 }
 \section{Objects from the class}{
 Objects of class \code{conservEnrich} can be created from 

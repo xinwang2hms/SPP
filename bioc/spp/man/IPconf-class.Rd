@@ -27,9 +27,9 @@ Input)}.
 		an object of class \code{\link[spp:smoothedEnrich]{smoothedEnrich}}, which represents 
 		smoothed enrichment profile
 		}
-		\item{\code{conserved_enrichment}:}{
+		\item{\code{conserv_enrichment}:}{
 		an object of class \code{\link[spp:conservEnrich]{conservEnrich}}, which represents 
-		conserved enrichment profile
+		conservative enrichment profile
 		}
 		\item{\code{broad_region}:}{
 		an object of class \code{\link[spp:broadRegion]{broadRegion}}, which represents broad 
