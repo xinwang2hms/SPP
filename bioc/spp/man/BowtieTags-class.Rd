@@ -43,7 +43,9 @@ below for details).
 	}
 }
 \section{Methods}{
-	Methods inherited from class \code{\link[spp:AlignedTags]{AlignedTags}}:
+	Methods inherited from class \code{\link[spp:AlignedTags]{AlignedTags}}, 
+	so please look into class \code{\link[spp:AlignedTags]{AlignedTags}} 
+	for more details:
 	\describe{
 		\item{\code{subset}}{
 		}
@@ -57,14 +59,13 @@ below for details).
 		}	
 		\item{\code{set.cross.cor}}{
 		}	
-		\item{\code{get.smoothed.density}}{
-		}	
 		\item{\code{view.cross.cor}}{
 		}	
 	}
 	Methods specific to class \code{BowtieTags}:
 	\describe{
-		\item{\code{read}}{
+		\item{\code{read(file=NULL, read_tag_names=F, read_tag_qualities=F, 
+		fix_chr_names=F)}}{
 		}
 	}
 }

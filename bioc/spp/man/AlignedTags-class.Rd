@@ -23,7 +23,7 @@ subclasses such as \code{BAMTags} and \code{BowtieTags}.
 \section{Fields}{
 	\describe{
 		\item{\code{genome_build}:}{
-		a character value specifying the genome build such as `mm9' and `hg19'
+		a character value specifying the genome build such as 'mm9' and 'hg19'
 		}
 		\item{\code{tags}:}{
 		a list of vectors of 5' tag coordinates, with negative values
@@ -51,21 +51,22 @@ subclasses such as \code{BAMTags} and \code{BowtieTags}.
 }
 \section{Methods}{
 	\describe{
-		\item{\code{subset}}{
+		\item{\code{subset(filter)}}{
 		}
-		\item{\code{remove.tag.anomalies}}{
+		\item{\code{remove.tag.anomalies(bin=1, trim_fraction=1e-3, z=5, 
+		zo=3*z, var_base=0.1)}}{
 		}
-		\item{\code{remove.local.tag.anomalies}}{
+		\item{\code{remove.local.tag.anomalies(window_size=200, eliminate_fold=10, 
+		cap_fold=4, z_threshold=3)}}{
 		}		
-		\item{\code{compute.cross.cor}}{
+		\item{\code{compute.cross.cor(srange=c(50, 500), bin=5, min_tag_count=1e3, 
+		acceptance_z_score=3, accept_all_tags=FALSE)}}{
 		}
-		\item{\code{get.cross.cor}}{
+		\item{\code{get.cross.cor()}}{
 		}	
-		\item{\code{set.corss.cor}}{
+		\item{\code{set.corss.cor(value)}}{
 		}	
-		\item{\code{get.smoothed.density}}{
-		}	
-		\item{\code{view.cross.cor}}{
+		\item{\code{view.cross.cor()}}{
 		}	
 	}
 }

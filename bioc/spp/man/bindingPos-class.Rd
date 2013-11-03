@@ -3,6 +3,7 @@
 \alias{bindingPos-class}
 \alias{bindingPos}
 \alias{identify,bindingPos-method}
+\alias{get.profile,bindingPos-method}
 \alias{get.bp,bindingPos-method}
 \alias{write.bp,bindingPos-method}
 \alias{view.bp,bindingPos-method}
@@ -42,32 +43,33 @@ Objects of class \code{bindingPos} can be created from
 \section{Methods}{
 	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
 	\describe{
-		\item{\code{set.ChIP}}{
+		\item{\code{set.ChIP(ChIP)}}{
 		}		
-		\item{\code{set.Input}}{
+		\item{\code{set.Input(Input)}}{
 		}			
-		\item{\code{set.param}}{
+		\item{\code{get.param(what)}}{
 		}			
-		\item{\code{get.param}}{
+	}
+	Methods overridden from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
+	\describe{
+		\item{\code{set.param(...)}}{
 		}			
-		\item{\code{view}}{
-		}
-		\item{\code{get.profile}}{
+		\item{\code{get.profile()}}{
 		}
 	}
 	Methods specific to \code{bindingPos}:
 	\describe{
-		\item{\code{identify}}{
+		\item{\code{identify()}}{
 		}
-		\item{\code{get.bp}}{
+		\item{\code{get.bp(sort_by="chr")}}{
 		}
-		\item{\code{write.bp}}{
+		\item{\code{write.bp(file, sort_by="chr")}}{
 		}
-		\item{\code{view.bp}}{
+		\item{\code{view.bp(chr=NULL, start=NULL, end=NULL, col="red")}}{
 		}
-		\item{\code{get.narrowpeak}}{
+		\item{\code{get.narrowpeak(sort_by="chr")}}{
 		}
-		\item{\code{write.narrowpeak}}{
+		\item{\code{write.narrowpeak(file)}}{
 		}
 	}
 }

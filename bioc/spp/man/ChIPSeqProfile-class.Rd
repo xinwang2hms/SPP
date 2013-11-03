@@ -5,7 +5,11 @@
 \alias{set.ChIP,ChIPSeqProfile-method}
 \alias{set.Input,ChIPSeqProfile-method}
 \alias{set.param,ChIPSeqProfile-method}
+\alias{get.param,ChIPSeqProfile-method}
 \alias{get.profile,ChIPSeqProfile-method}
+\alias{write.wig,ChIPSeqProfile-method}
+\alias{write.tdf,ChIPSeqProfile-method}
+\alias{view,ChIPSeqProfile-method}
 \title{
 A reference class representing ChIP-Seq profiles
 }
@@ -36,21 +40,21 @@ subclasses such as \code{\link[spp:smoothedEnrich]{smoothedEnrich}}.
 }
 \section{Methods}{
 	\describe{
-		\item{\code{set.ChIP}}{
+		\item{\code{set.ChIP(ChIP)}}{
 		}		
-		\item{\code{set.Input}}{
+		\item{\code{set.Input(Input)}}{
 		}			
-		\item{\code{set.param}}{
+		\item{\code{set.param(...)}}{
 		}			
-		\item{\code{get.param}}{
+		\item{\code{get.param(what)}}{
 		}			
-		\item{\code{write.wig}}{
+		\item{\code{write.wig(file, name, feature, threshold=5, zip=F)}}{
 		}			
-		\item{\code{write.tdf}}{
+		\item{\code{write.tdf(file, name, feature, save_wig=F, zip_wig=T)}}{
 		}			
-		\item{\code{view}}{
+		\item{\code{view(chr=NULL, start=NULL, end=NULL, col_sig="red", col_bg="green")}}{
 		}
-		\item{\code{get.profile}}{
+		\item{\code{get.profile()}}{
 		}
 	}
 }

@@ -2,7 +2,9 @@
 \docType{class}
 \alias{broadRegion-class}
 \alias{broadRegion}
+\alias{set.param,broadRegion-method}
 \alias{identify,broadRegion-method}
+\alias{view,broadRegion-method}
 \alias{get.profile,broadRegion-method}
 \alias{write.broadpeak,broadRegion-method}
 \title{
@@ -39,28 +41,28 @@ Objects of class \code{broadRegion} can be created from
 \section{Methods}{
 	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
 	\describe{
-		\item{\code{set.ChIP}}{
+		\item{\code{set.ChIP(ChIP)}}{
 		}		
-		\item{\code{set.Input}}{
+		\item{\code{set.Input(Input)}}{
 		}			
-		\item{\code{set.param}}{
+		\item{\code{get.param(what)}}{
 		}			
-		\item{\code{get.param}}{
-		}			
-		\item{\code{write.wig}}{
-		}			
-		\item{\code{write.tdf}}{
-		}			
-		\item{\code{view}}{
+	}
+	Methods overridden from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
+	\describe{
+		\item{\code{set.param(...)}}{
 		}
-		\item{\code{get.profile}}{
+		\item{\code{get.profile(sort_by="chr")}}{
 		}
 	}
 	Methods specific to \code{broadRegion}:
 	\describe{
-		\item{\code{identify}}{
+		\item{\code{identify()}}{
 		}
-		\item{\code{write.broadpeak}}{
+		\item{\code{view(chr=NULL, start=NULL, end=NULL, col_sig="red",
+		col_bg="green")}}{
+		}
+		\item{\code{write.broadpeak(file)}}{
 		}
 	}
 }

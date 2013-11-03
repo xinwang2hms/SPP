@@ -34,21 +34,24 @@ Objects of class \code{smoothedTagDensity} can be created from
 \section{Methods}{
 	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
 	\describe{
-		\item{\code{set.ChIP}}{
+		\item{\code{set.ChIP(ChIP)}}{
 		}		
-		\item{\code{set.Input}}{
+		\item{\code{set.Input(Input)}}{
 		}			
-		\item{\code{set.param}}{
+		\item{\code{get.param(what)}}{
 		}			
-		\item{\code{get.param}}{
+		\item{\code{write.wig(file, name, feature, threshold=5, zip=F)}}{
 		}			
-		\item{\code{write.wig}}{
+		\item{\code{write.tdf(file, name, feature, save_wig=F, zip_wig=T)}}{
 		}			
-		\item{\code{write.tdf}}{
-		}			
-		\item{\code{view}}{
+		\item{\code{view(chr=NULL, start=NULL, end=NULL, col_sig="red", col_bg="green")}}{
 		}
-		\item{\code{get.profile}}{
+	}
+	Methods overridden from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
+	\describe{
+		\item{\code{set.param()}}{
+		}			
+		\item{\code{get.profile()}}{
 		}
 	}
 }
