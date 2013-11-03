@@ -1,20 +1,18 @@
 ##-1. AlignedTags 
-##-The class is designed for storing and operating aligned ChIP-seq tags
+##-The class is designed for representing aligned ChIP-seq tags
 ##-note: this is a root class, which is inherited by specific classes
-##!issue: may need to define a better class than using directly 'list'
 setClassUnion("smoothedTagDensity_Or_NULL", c("smoothedTagDensity", "NULL"))
 AlignedTags = setRefClass(
 	Class = "AlignedTags",
 	fields = list(
 		file = "char_Or_NULL", 				##read from file later	
-		genome_build = "char_Or_NULL", 
+		genome_build = "char_Or_NULL",			##e.g. mm9, hg19
 ##		read_length = "numeric_Or_NULL", 		##read length
 		tags = "list_Or_NULL", 				
-		quality = "list_Or_NULL", 
+		quality = "list_Or_NULL",			##not in use actually 
 		names = "list_Or_NULL", 			
 		bd_chrtcs = "list_Or_NULL", 			##binding characteristics
 		smoothed_density = "smoothedTagDensity_Or_NULL"
-##		.param = "list_Or_NULL"				##parameters
 	)
 )
 setClassUnion("AlignedTags_Or_NULL", c("AlignedTags", "NULL"))
@@ -26,7 +24,6 @@ AlignedTags$methods(
 		if(is.null(smoothed_density))
 			smoothed_density <<- smoothedTagDensity(ChIP=.self)
 		else {
-##			.self$smoothed_density <<- smoothedTagDensity(ChIP=.self, param=.self$smoothed_density$.param)
 			tmp <- .self$smoothed_density$.profile
 			.self$smoothed_density <<- smoothedTagDensity(ChIP=.self, param=.self$smoothed_density$.param)
 			.self$smoothed_density$.profile <<- tmp
@@ -73,7 +70,7 @@ AlignedTags$methods(
 			if(length(names)>0)
 				names[setdiff(CHRs, chrs)] <<- NULL			
 		} else
-			stop("'filter' should either be a vector of chromosomes or a bed data frame")
+			stop("'filter' should either be a vector of chromosomes")
 	}
 )
 

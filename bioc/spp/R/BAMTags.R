@@ -1,4 +1,5 @@
-##Class BAMTags is inherited from AlignedTags for BAM alignment results
+##Class BAMTags inherites from AlignedTags representing 
+##BAM alignment results
 ##!issue: may need to set specific slots for BAM results
 BAMTags = setRefClass(
 	Class = "BAMTags", 

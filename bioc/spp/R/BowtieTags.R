@@ -1,4 +1,5 @@
-##-1.a. Class BowtieTags is inherited from AlignedTags for BAM alignment results
+##Class BowtieTags inherites from AlignedTags for representing 
+##BAM alignment results
 ##!issue: may need to set specific slots for BAM results
 BowtieTags = setRefClass(
 	Class = "BowtieTags", 
