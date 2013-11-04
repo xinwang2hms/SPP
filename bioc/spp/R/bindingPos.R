@@ -297,20 +297,56 @@ bindingPos$methods(
 	}
 )
 bindingPos$methods(
-        view.bp = function(chr=NULL, start=NULL, end=NULL, col="red", 
-			...) {
-		if(is.null(chr) || is.null(start) || is.null(end)) 
-			stop("Please specify 'chr', 'start' and 'end'!")
+        view.bp = function(chr, start=0, end=Inf, col="red", ...) {    
+        ##check 'chr'
+		if(missing(chr)) 
+			stop("Please specify 'chr'!")
+		if(is.null(.Input))
+			tmp.chrl <- names(.ChIP$tags)
+		else 
+			tmp.chrl <- intersect(names(.ChIP$tags), names(.Input$tags))			
+		if(! (chr %in% tmp.chrl))
+			stop(paste("No tags in '", chr, "'",  sep=""))
+		##check 'start' and 'end'
+		if(!is.numeric(start) || !is.numeric(end))
+			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")			
+		if(start > end)
+			stop("start should be < stop!")
+		##compute profile if not yet exist
 		if(is.null(.profile) || .param.updated)
 			.self$identify()
+		##decode input start and end
+		if(is.null(.Input))
+			tmp.rng <- range(abs(.ChIP$tags[[chr]]+.param$tag_shift))				
+		else
+			tmp.rng <- range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+				range(abs(.Input$tags[[chr]]+.param$tag_shift))))
+		rng.start <- max(start, tmp.rng[1])
+		rng.end <- min(end, tmp.rng[2])
+		
 		if(! chr %in% names(.profile$npl))
 			stop(paste("No significant binding positions in ", chr, 
 				"!", sep=""))
 		##retrieve from .profile
-		inds <- which(points.within(.profile$npl[[chr]][, "x"], fs=start, fe=end)==1)
+		inds <- which(points.within(.profile$npl[[chr]][, "x"], fs=rng.start, fe=rng.end)==1)
 		if(length(inds)==0)
-			stop("No significant binding positions in specified region!")
+			stop("No significant binding positions in specified region!")		
+
+		##limit maximal number of points by random sampling
+		##?maybe fix 'randomness' by set.seed?
+		density.max.points <- getOption("density.max.points")
+		if(is.null(density.max.points))
+			density.max.points <- 1e4
+		if(length(inds) > density.max.points)	
+##			inds <- sample(inds, density.max.points, replace=FALSE)
+			inds <- sample(inds, density.max.points, replace=FALSE, 
+				prob=.profile$npl[[chr]][inds, "y"])
+		##finally, plot
 		par(mar=c(4, 2.5, 1, 1))
+		if(start==0)
+			start <- rng.start
+		if(end==Inf)
+			end <- rng.end
 		plot(.profile$npl[[chr]][inds, "x"], .profile$npl[[chr]][inds, "y"], 
 			type='h', col = col, xlab=paste(chr, ":", 
 			format(start, scientific=F), "-", format(end, scientific=F), 

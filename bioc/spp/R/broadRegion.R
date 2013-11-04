@@ -112,12 +112,22 @@ broadRegion$methods(
 broadRegion$methods(
         view = function(chr, start=0, end=Inf, col_sig="red", 
 			col_bg="green", ...) {
+		##check 'chr'	
 		if(missing(chr)) 
 			stop("Please specify 'chr'!")
-		if(! (chr %in% .param$chrl))
-			stop(paste("No tags in '", chr, "'", sep=""))
+		if(is.null(.Input))
+			tmp.chrl <- names(.ChIP$tags)
+		else 
+			tmp.chrl <- intersect(names(.ChIP$tags), names(.Input$tags))			
+		if(! (chr %in% tmp.chrl))
+			stop(paste("No tags in '", chr, "'",  sep=""))
+##		if(! (chr %in% .param$chrl))
+##			stop(paste("No tags in '", chr, "'", sep=""))
+		##check 'start' and 'end'
 		if(!is.numeric(start) || !is.numeric(end))
-			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")
+			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")			
+		if(start > end)
+			stop("start should be < stop!")
 		##!dirty code
 		temp.chrl <- .param$chrl
 		temp.rngl <- .param$rngl
@@ -129,7 +139,7 @@ broadRegion$methods(
 		start <- .param$rngl[[1]][1]
 		end <- .param$rngl[[1]][2]
 ##		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
-		if(is.null(.profile))
+		if(is.null(.profile) || .param.updated)
 			.self$identify()
 		.param$chrl <<- temp.chrl
 		.param$rngl <<- temp.rngl
@@ -142,9 +152,11 @@ broadRegion$methods(
 			ylim=c(min(temp_profile[[chr]][, 3], 0), max(temp_profile[[chr]][, 3])))
 		trash <- sapply(1:nrow(temp_profile[[chr]]), function(x) {
 			rect(temp_profile[[chr]][x, 1], 0, temp_profile[[chr]][x, 2], 
-				temp_profile[[chr]][x, 3], lwd=0, 
-				col=ifelse(temp_profile[[chr]][x, 3]>0, col_sig, col_bg))
+				temp_profile[[chr]][x, 3], lwd=1, 
+				border=ifelse(temp_profile[[chr]][x, 3]>0, col_sig, col_bg))
+##				 density=2, angle=60,  border=TRUE)
 		})
+		abline(h=0, col=col_sig)
 })
 broadRegion$methods(
 	identify = function() {

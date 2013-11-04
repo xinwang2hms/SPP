@@ -260,6 +260,8 @@ ChIPSeqProfile$methods(
 			stop(paste("No tags in '", chr, "'",  sep=""))
 		if(!is.numeric(start) || !is.numeric(end))
 			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")
+		if(start > end)
+			stop("start should be < stop!")		
 		##!dirty code
 		##cache chrl and rngl
 		temp.chrl <- .param$chrl
