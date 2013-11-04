@@ -57,13 +57,83 @@ ChIPSeqProfile$methods(
 ChIPSeqProfile$methods(
 	set.param = function(..., verbose=TRUE) {
 		param <- list(...)
-		known_params <- intersect(names(param), names(.param))
+		known_params <- setdiff(intersect(names(param), names(.param)), c("rngl", "chrl"))
 		unknown_params <- setdiff(names(param), names(.param))
 		if(length(unknown_params) > 0)
 			warning("These parameters are unknown: ", 
 				paste(unknown_params, collapse=', '))
 		if(length(known_params) > 0) 
 			.param[known_params] <<- param[known_params]
+		##set rngl and chrl if available
+		if(all(c("chrl", "rngl") %in% names(param)))
+			stop("Please do not set 'chrl' and 'rngl' at the same time, which might cause confusion!")
+		if("rngl" %in% names(param)) {
+			rngl <- param[["rngl"]]
+			if(length(rngl)==0)
+				stop("Empty 'rngl'!")
+			##rngl
+			if(is.null(.Input))
+				tmp.chrl <- names(.ChIP$tags)
+			else 
+				tmp.chrl <- intersect(names(.ChIP$tags), names(.Input$tags))
+			names(tmp.chrl) <- tmp.chrl
+			if(!is.list(rngl) && rngl!="all")
+				stop("'rngl' should be either a list of genomic ranges or 'all' indicating all regions!")	
+			if(!is.list(rngl) && rngl=="all") {
+				if(is.null(.Input))
+					tmp.rngl <- lapply(tmp.chrl,function(chr) 
+						range(abs(.ChIP$tags[[chr]]+.param$tag_shift)))				
+				else
+					tmp.rngl <- lapply(tmp.chrl,function(chr) 
+						range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+						range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+			} else if(is.list(rngl)) {
+				tmp.chrl <- intersect(names(rngl), tmp.chrl)
+				names(tmp.chrl) <- tmp.chrl
+				if(is.null(.Input))
+					tmp.rngl <- lapply(tmp.chrl,function(chr) 
+						range(abs(.ChIP$tags[[chr]]+.param$tag_shift)))				
+				else
+					tmp.rngl <- lapply(tmp.chrl,function(chr) 
+						range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+						range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+				tmp.rngl <- lapply(tmp.chrl, function(chr) {
+					if(length(rngl[[chr]])!=2)
+						stop("Please provide and only provide 'start' and 'end' in 'rngl'")
+					if(rngl[[chr]][1]>=rngl[[chr]][2])
+						stop("'start' should always be smaller than 'end' in 'rngl'")
+					c(max(tmp.rngl[[chr]][1], rngl[[chr]][1]), 
+					min(tmp.rngl[[chr]][2], rngl[[chr]][2]))
+				})
+			} 
+			.param$rngl <<- tmp.rngl
+			.param$chrl <<- tmp.chrl
+		} else if("chrl" %in% names(param)) {
+			chrl <- param[["chrl"]]
+			##chrl	
+			if(is.null(.Input))
+				tmp.chrl <- names(.ChIP$tags)
+			else 
+				tmp.chrl <- intersect(names(.ChIP$tags), names(.Input$tags))
+			if(!is.character(chrl))	
+				stop("'chrl' should be a vector of chromosome names or 'all'!")
+			if(length(chrl)>1) {
+				tmp.chrl <- intersect(tmp.chrl, chrl)
+			}
+			if(length(tmp.chrl)==0)
+				stop("'chrl' not available in the data!") 
+			names(tmp.chrl) <- tmp.chrl
+			##infer rngl from chrl
+			if(is.null(.Input))
+				tmp.rngl <- lapply(tmp.chrl,function(chr) 
+					range(abs(.ChIP$tags[[chr]]+.param$tag_shift)))				
+			else
+				tmp.rngl <- lapply(tmp.chrl,function(chr) 
+					range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+					range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+			.param$rngl <<- tmp.rngl
+			.param$chrl <<- tmp.chrl
+		} 
 	}
 )
 ChIPSeqProfile$methods(
@@ -178,25 +248,48 @@ ChIPSeqProfile$methods(
 })
 
 ChIPSeqProfile$methods(
-        view = function(chr=NULL, start=NULL, end=NULL, col_sig="red", 
+        view = function(chr, start=0, end=Inf, col_sig="red", 
 			col_bg="green", ...) {
 		if(!is(.self, "smoothedEnrich") && !is(.self, "conservEnrich")
 			&& !is(.self, "smoothedTagDensity"))
 		stop("This function only supports objects of class 'smoothedEnrich', 'conservEnrich' and 'smoothedTagDensity!'")
-		if(is.null(chr) || is.null(start) || is.null(end)) 
-			stop("Please specify 'chr', 'start' and 'end'!")
+		if(missing(chr)) 
+			stop("Please specify 'chr'!")
+		##check start end 
+		if(! (chr %in% .param$chrl))
+			stop(paste("No tags in '", chr, "'",  sep=""))
+		if(!is.numeric(start) || !is.numeric(end))
+			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")
 		##!dirty code
 		##cache chrl and rngl
 		temp.chrl <- .param$chrl
 		temp.rngl <- .param$rngl
 		##temporarily set chrl and rngl
-		.param$chrl <<- chr
-		.param$rngl <<- list(c(start, end))
-		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
+##		.param$chrl <<- chr
+##		.param$rngl <<- list(c(start, end))
+		rngl <- list(c(start, end))
+		names(rngl) <- chr
+		.self$set.param(rngl=rngl)
+		start <- .param$rngl[[1]][1]
+		end <- .param$rngl[[1]][2]
+		density.max.points <- getOption("density.max.points")
+		if(is.null(density.max.points))
+			density.max.points <- 1e4
+		min.step <- round((end-start+1)/density.max.points)
+		temp.step <- NULL
+		if((end-start+1)/.param$step > density.max.points) {
+			temp.step <- .param$step
+			.param$step <<- min.step
+			warning(paste("set 'step' = ", min.step, " to avoid overuse of memory!", sep=""))
+		}
+
+##		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
 		temp_profile <- .self$get.profile()
 		##revert chrl and rngl
 		.param$chrl <<- temp.chrl
 		.param$rngl <<- temp.rngl
+		if(!is.null(temp.step))
+			.param$step <<- temp.step
 ##		dev.new(width=16, height=2.5)
 		par(mar=c(4, 2.5, 1, 1))
 		plot(temp_profile[[chr]][, 1], temp_profile[[chr]][, 2], type='h', 

@@ -87,33 +87,6 @@ broadRegion$methods(
 broadRegion$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
-		##		
-		##chrl		
-		##determine common range
-		if(is.null(.param$chrl) || (!is.list(.param$chrl) && .param$chrl=="all")) {
-##			cat("setting chromosomes: chrl ")
-			if(is.null(.Input))
-				.param$chrl <<- names(.ChIP$tags)
-			else 
-				.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
-			names(.param$chrl) <<- .param$chrl
-##			cat("[done]\n")
-		}
-		##rngl
-		if(is.null(.param$rngl) || (!is.list(.param$rngl) && .param$rngl=="all")) {
-##			cat("setting chromosome ranges: rngl ")
-			if(is.null(.Input))
-				.param$rngl <<- lapply(.param$chrl,function(chr) 
-					range(abs(.ChIP$tags[[chr]]+.param$tag_shift)))				
-			else
-				.param$rngl <<- lapply(.param$chrl,function(chr) 
-					range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
-					range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
-##			cat("[done]\n")
-		} else {
-			.param$chrl <<- names(.param$rngl)
-			names(.param$chrl) <<- .param$chrl
-		}	
 		.param.updated <<- TRUE
 	}
 )
@@ -137,16 +110,25 @@ broadRegion$methods(
 )
 
 broadRegion$methods(
-        view = function(chr=NULL, start=NULL, end=NULL, col_sig="red", 
+        view = function(chr, start=0, end=Inf, col_sig="red", 
 			col_bg="green", ...) {
-		if(is.null(chr) || is.null(start) || is.null(end)) 
-			stop("Please specify 'chr', 'start' and 'end'!")
+		if(missing(chr)) 
+			stop("Please specify 'chr'!")
+		if(! (chr %in% .param$chrl))
+			stop(paste("No tags in '", chr, "'", sep=""))
+		if(!is.numeric(start) || !is.numeric(end))
+			stop("'start' and 'end' should be numeric, or 'Inf' indicating the end of chromosome!")
 		##!dirty code
 		temp.chrl <- .param$chrl
 		temp.rngl <- .param$rngl
-		.param$chrl <<- chr
-		.param$rngl <<- list(c(start, end))
-		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
+##		.param$chrl <<- chr
+##		.param$rngl <<- list(c(start, end))
+		rngl <- list(c(start, end))
+		names(rngl) <- chr
+		.self$set.param(rngl=rngl)
+		start <- .param$rngl[[1]][1]
+		end <- .param$rngl[[1]][2]
+##		names(.param$rngl)[1] <<- names(.param$chrl) <<- chr
 		if(is.null(.profile))
 			.self$identify()
 		.param$chrl <<- temp.chrl
