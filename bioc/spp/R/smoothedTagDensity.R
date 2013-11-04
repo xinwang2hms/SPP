@@ -44,7 +44,7 @@ smoothedTagDensity$methods(
 				if(length(known_params) > 0) 
 					.param[known_params] <<- param[known_params]
 			}			
-		if(!is.null(.ChIP)) {
+		if(!is.null(.ChIP) && length(.ChIP$tags) > 0) {
 			##
 			if(is.null(.param$tag_shift)) {
 ##				cat("setting tag shift: tag_shift ")
@@ -84,8 +84,43 @@ smoothedTagDensity$methods(
 	}
 )
 smoothedTagDensity$methods(
-	set.param = function(..., verbose=TRUE) {
-		callSuper(..., verbose=TRUE)
+	set.param = function(..., verbose=TRUE) {		
+		if(!is.null(.ChIP) && length(.ChIP$tags) > 0) {
+			##
+			if(is.null(.param$tag_shift)) {
+##				cat("setting tag shift: tag_shift ")
+				.param$tag_shift <<- .ChIP$bd_chrtcs$peak$x/2
+##				cat("=", .param$tag_shift, " [done]\n")
+			}
+			##		
+			##chrl		
+			##determine common range
+			if(is.null(.param$chrl)) {
+##				cat("setting chromosomes: chrl ")
+				if(is.null(.Input))
+					.param$chrl <<- names(.ChIP$tags)
+				else 
+					.param$chrl <<- intersect(names(.ChIP$tags), names(.Input$tags))
+				names(.param$chrl) <<- .param$chrl
+##				cat("[done]\n")
+			}
+			##rngl
+			if(is.null(.param$rngl)) {
+##				cat("setting chromosome ranges: rngl ")
+				if(is.null(.Input))
+					.param$rngl <<- lapply(.param$chrl,function(chr) 
+						range(abs(.ChIP$tags[[chr]]+.param$tag_shift)))				
+				else
+					.param$rngl <<- lapply(.param$chrl,function(chr) 
+						range(c(range(abs(.ChIP$tags[[chr]]+.param$tag_shift)), 
+						range(abs(.Input$tags[[chr]]+.param$tag_shift)))))
+##				cat("[done]\n")
+			} else {
+				.param$chrl <<- names(.param$rngl)
+				names(.param$chrl) <<- .param$chrl
+			}	
+		}
+		callSuper(..., verbose=TRUE)	
 	}
 )
 ##4. compute smoothed tag densities

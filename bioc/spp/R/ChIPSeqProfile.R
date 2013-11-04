@@ -269,6 +269,7 @@ ChIPSeqProfile$methods(
 ##		.param$rngl <<- list(c(start, end))
 		rngl <- list(c(start, end))
 		names(rngl) <- chr
+
 		.self$set.param(rngl=rngl)
 		start <- .param$rngl[[1]][1]
 		end <- .param$rngl[[1]][2]
