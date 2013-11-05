@@ -232,7 +232,7 @@ bindingPos$methods(
 			cat("[done]\n")		
 		}
 		##add parameter list to .profile
-		.profile$param <<- .param
+##		.profile$param <<- .param
 		.param.updated <<- FALSE	
 	}
 )

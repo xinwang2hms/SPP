@@ -144,13 +144,22 @@ broadRegion$methods(
 		.param$chrl <<- temp.chrl
 		.param$rngl <<- temp.rngl
 		temp_profile <- .profile
+		##limit maximal number of rectangles to plot by random sampling	
+		density.max.rects <- getOption("density.max.rects")
+		if(is.null(density.max.rects))
+			density.max.rects <- 500
+		inds <- 1:nrow(temp_profile[[chr]])
+		if(nrow(temp_profile[[chr]])>density.max.rects)
+			inds <- sample(inds, density.max.rects, replace=FALSE, 
+			prob=temp_profile[[chr]][, "e"]-temp_profile[[chr]][, "s"]+1)
+		
 ##		dev.new(width=16, height=2.5)
 		par(mar=c(4, 2.5, 1, 1))
-		plot(temp_profile[[chr]][, 1], temp_profile[[chr]][, 3], type='n', 
+		plot(temp_profile[[chr]][inds, 1], temp_profile[[chr]][inds, 3], type='n', 
 			xlim=c(start, end), xlab=paste(chr, ":", format(start, scientific=F),               
                         "-", format(end, scientific=F), sep=""), ylab="", 
 			ylim=c(min(temp_profile[[chr]][, 3], 0), max(temp_profile[[chr]][, 3])))
-		trash <- sapply(1:nrow(temp_profile[[chr]]), function(x) {
+		trash <- sapply(inds, function(x) {
 			rect(temp_profile[[chr]][x, 1], 0, temp_profile[[chr]][x, 2], 
 				temp_profile[[chr]][x, 3], lwd=1, 
 				border=ifelse(temp_profile[[chr]][x, 3]>0, col_sig, col_bg))
@@ -222,7 +231,7 @@ broadRegion$methods(
 				return(d)
 			}
 		})		
-		.profile$param <<- .param
+##		.profile$param <<- .param
 		.param.updated <<- FALSE
 	}
 )
