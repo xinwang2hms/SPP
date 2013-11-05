@@ -149,7 +149,7 @@ ChIPSeqProfile$methods(
 
 
 ChIPSeqProfile$methods(
-	write.wig = function(file, name, feature, threshold=5, zip=F) {
+	write.wig = function(file, name, feature, zip=F) {
 		if(!is(.self, "smoothedEnrich") && !is(.self, "conservEnrich")
 			&& !is(.self, "smoothedTagDensity"))
 		stop("This function only supports objects of class 'smoothedEnrich', 'conservEnrich' and 'smoothedTagDensity!'")

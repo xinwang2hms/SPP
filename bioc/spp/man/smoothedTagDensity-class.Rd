@@ -17,17 +17,24 @@ Objects of class \code{smoothedTagDensity} can be created from
 	\describe{
 		\item{\code{.ChIP}:}{
 		a reference to an object of \code{\link[spp:AlignedTags]{AlignedTags}} class, which 
-		represents aligned tags of an ChIP experiment
+		represents aligned tags of an ChIP experiment.
 		}
 		\item{\code{.Input}:}{
 		a reference to an object of \code{\link[spp:AlignedTags]{AlignedTags}} class, which 
-		represents aligned tags of an Input experiment
+		represents aligned tags of an Input experiment.
 		}
 		\item{\code{.profile}:}{
-		a variable for caching profile temporarily
+		a variable for caching profile temporarily.
 		}
 		\item{\code{.param}:}{
-		a list of parameters used to compute profile
+		a list of parameters used to compute profile. Parameters (and default settings) are: \cr
+		\code{tag_shift=NULL}: \cr
+		\code{bandwidth=150}: \cr
+		\code{step=50}: \cr
+		\code{rngl=NULL}: \cr
+		\code{chrl=NULL}: \cr
+		\code{bg_density_scaling=TRUE}: \cr
+		\code{scale_by_dataset_size=FALSE}: \cr
 		}
 	}
 }

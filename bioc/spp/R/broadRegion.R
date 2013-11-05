@@ -37,7 +37,7 @@ broadRegion$methods(
 			##initialize default .param
 			.param <<- list(window_size=500, tag_shift=NULL, bg_weight=NULL, 
 				bg_density_scaling=TRUE, multiplier=1, z_thr=3, mcs=0, 
-				debug=FALSE, mask_window_size=500, poisson_z=0, rngl=NULL, 
+				mask_window_size=500, poisson_z=0, rngl=NULL, 
 				chrl=NULL, poisson_ratio=4, either=FALSE)
 			##overwrite paramters according to input argument param
 			if(!is.null(param)) {
@@ -168,7 +168,7 @@ broadRegion$methods(
 		abline(h=0, col=col_sig)
 })
 broadRegion$methods(
-	identify = function() {
+	identify = function(..., verbose=FALSE) {
 		## find significantly enriched clusters
 		##!
 ##		if(is.null(.param$tag_shift))
@@ -208,7 +208,7 @@ broadRegion$methods(
 ##		se <- find.significantly.enriched.regions(.ChIP$tags, .Input$tags, 
 		se <- find.significantly.enriched.regions(signal.data, control.data, 
 			window.size=.param$window_size, multiplier=.param$multiplier, 
-			z.thr=.param$z_thr, mcs=.param$mcs, debug=.param$debug, 
+			z.thr=.param$z_thr, mcs=.param$mcs, debug=verbose, 
 			background.density.scaling=.param$bg_density_scaling, 
 			masking.window.size=.param$mask_window_size, 
 			poisson.z=.param$poisson_z, poisson.ratio=.param$poisson_ratio, 

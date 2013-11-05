@@ -47,25 +47,34 @@ below for details).
 	so please look into class \code{\link[spp:AlignedTags]{AlignedTags}} 
 	for more details:
 	\describe{
-		\item{\code{subset}}{
+		\item{\code{subset(filter)}}{
 		}
-		\item{\code{remove.tag.anomalies}}{
+		\item{\code{remove.tag.anomalies(bin=1, trim_fraction=1e-3, z=5, 
+		zo=3*z, var_base=0.1)}}{
 		}
-		\item{\code{remove.local.tag.anomalies}}{
+		\item{\code{remove.local.tag.anomalies(window_size=200, eliminate_fold=10, 
+		cap_fold=4, z_threshold=3)}}{
 		}		
-		\item{\code{compute.cross.cor}}{
+		\item{\code{compute.cross.cor(srange=c(50, 500), bin=5, min_tag_count=1e3,
+		acceptance_z_score=3, accept_all_tags=FALSE)}}{
 		}
-		\item{\code{get.cross.cor}}{
+		\item{\code{get.cross.cor()}}{
 		}	
-		\item{\code{set.cross.cor}}{
+		\item{\code{set.cross.cor(value)}}{
 		}	
-		\item{\code{view.cross.cor}}{
+		\item{\code{view.cross.cor()}}{
 		}	
 	}
 	Methods specific to class \code{BowtieTags}:
 	\describe{
 		\item{\code{read(file=NULL, read_tag_names=F, read_tag_qualities=F, 
 		fix_chr_names=F)}}{
+		Read in aligned reads from Bowtie file.
+		\emph{Arguments} \cr
+		\code{file}: The file of bowtie alignment results. \cr
+		\code{read_tag_names}: whether the tag names should be read in. \cr
+		\code{read_tag_qualities}: not in use. \cr
+		\code{fix_chr_names}: Whether to remove ".fa" from the end of the sequence names. \cr
 		}
 	}
 }

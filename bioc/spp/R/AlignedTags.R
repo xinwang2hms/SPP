@@ -286,7 +286,7 @@ AlignedTags$methods(
 AlignedTags$methods(
 	view.cross.cor = function() {
 		if(is.null(bd_chrtcs))
-			stop("Please run 'get.binding.characteristics' first!")
+			stop("Please run 'compute.cross.cor' first!")
 		plot(bd_chrtcs$cross_cor, type='l', xlab="strand shift", 
 			ylab="cross-correlation")
 		abline(v=bd_chrtcs$peak$x, lty=2, col=2)				
