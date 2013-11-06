@@ -14,27 +14,13 @@ conservEnrich$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
-#		callSuper(...)
-#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
-#	.ChIP <<- NULL
-#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
-#	.Input <<- NULL
-#		if(is.null(.ChIP)) {
-#			if(!is.null(ChIP))
-#				.ChIP <<- ChIP
-#		}
-#		if(is.null(.Input)) {
-#			if(!is.null(Input))
-#				.Input <<- Input
-#		}
-#		if(is.null(.profile))
-#			.profile <<- NULL
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
 		##--new object
 		if(is.null(.param))	{
 			##initialize default .param
+			##!to delete: posl, return_mle
 			.param <<- list(fws=500, bwsl=c(1, 5, 25, 50)*500, step=100, 
 				tag_shift=NULL, alpha=0.05, use_most_informative_scale=FALSE, 
 				quick_cal=TRUE, bg_density_scaling=TRUE, bg_weight=NULL, 

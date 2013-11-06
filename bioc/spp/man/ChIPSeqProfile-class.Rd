@@ -2,14 +2,14 @@
 \docType{class}
 \alias{ChIPSeqProfile-class}
 \alias{ChIPSeqProfile}
-\alias{set.ChIP,ChIPSeqProfile-method}
-\alias{set.Input,ChIPSeqProfile-method}
-\alias{set.param,ChIPSeqProfile-method}
-\alias{get.param,ChIPSeqProfile-method}
-\alias{get.profile,ChIPSeqProfile-method}
-\alias{write.wig,ChIPSeqProfile-method}
-\alias{write.tdf,ChIPSeqProfile-method}
-\alias{view,ChIPSeqProfile-method}
+\alias{set.ChIP}
+\alias{set.Input}
+\alias{set.param}
+\alias{get.param}
+\alias{get.profile}
+\alias{write.wig}
+\alias{write.tdf}
+\alias{view}
 \title{
 A reference class representing ChIP-Seq profiles
 }

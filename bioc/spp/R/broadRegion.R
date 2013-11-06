@@ -13,28 +13,14 @@ broadRegion$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
-#		callSuper(...)
-#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
-#	.ChIP <<- NULL
-#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
-#	.Input <<- NULL
-#		if(is.null(.ChIP)) {
-#			if(!is.null(ChIP))
-#				.ChIP <<- ChIP
-#		}
-#		if(is.null(.Input)) {
-#			if(!is.null(Input))
-#				.Input <<- Input
-#		}
-#		if(is.null(.profile))
-#			.profile <<- NULL
-		
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
 		##--new object
 		if(is.null(.param))	{
 			##initialize default .param
+			##!to delete: multiplier, z_thr, mcs, mask_window_size, poisson_z, 
+			##poisson_ratio, either
 			.param <<- list(window_size=500, tag_shift=NULL, bg_weight=NULL, 
 				bg_density_scaling=TRUE, multiplier=1, z_thr=3, mcs=0, 
 				mask_window_size=500, poisson_z=0, rngl=NULL, 

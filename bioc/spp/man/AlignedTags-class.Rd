@@ -2,14 +2,14 @@
 \docType{class}
 \alias{AlignedTags-class}
 \alias{AlignedTags}
-\alias{subset,AlignedTags-methods}
-\alias{remove.tag.anomalies,AlignedTags-methods}
-\alias{compute.cross.cor,AlignedTags-methods}
-\alias{get.smoothed.density,AlignedTags-methods}
-\alias{view.cross.cor,AlignedTags-methods}
-\alias{remove.local.tag.anomalies,AlignedTags-methods}
-\alias{get.cross.cor,AlignedTags-methods}
-\alias{set.cross.cor,AlignedTags-methods}
+\alias{subset}
+\alias{remove.tag.anomalies}
+\alias{compute.cross.cor}
+\alias{get.smoothed.density}
+\alias{view.cross.cor}
+\alias{remove.local.tag.anomalies}
+\alias{get.cross.cor}
+\alias{set.cross.cor}
 \title{
 A reference class representing aligned tags
 }

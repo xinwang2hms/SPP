@@ -2,7 +2,6 @@
 \docType{class}
 \alias{smoothedTagDensity-class}
 \alias{smoothedTagDensity}
-\alias{get.profile,smoothedTagDensity-method}
 \title{
 A reference class representing smoothed tag density profiles
 }
@@ -28,18 +27,26 @@ Objects of class \code{smoothedTagDensity} can be created from
 		}
 		\item{\code{.param}:}{
 		a list of parameters used to compute profile. Parameters (and default settings) are: \cr
-		\code{tag_shift=NULL}: \cr
-		\code{bandwidth=150}: \cr
-		\code{step=50}: \cr
-		\code{rngl=NULL}: \cr
-		\code{chrl=NULL}: \cr
-		\code{bg_density_scaling=TRUE}: \cr
-		\code{scale_by_dataset_size=FALSE}: \cr
+		\code{tag_shift=NULL}: Distance by which the positive and negative strand tags should 
+		be shifted towards eachother. This normally corresponds to the half of the 
+		cross-correlation peak position. The parameter should be set at initialization, if 
+		cross correlation has already been calculated in the object of class \code{AlignedTags}. \cr
+		\code{bandwidth=150}: standard deviation of the Gaussian kernel. \cr
+		\code{step=50}: The distance between the regularly spaced points for which the values 
+		should be calculated. The parameter can be tuned to achieve a balance between the 
+		resolution and memory consumption when visualizing the profile using method \code{view}. \cr
+		\code{bg_density_scaling=TRUE}: If TRUE, regions of significant tag enrichment will be 
+		masked out when calculating size ratio of the signal to control datasets (to estimate 
+		ratio of the background tag density). If FALSE, the dataset ratio will be equal to the 
+		ratio of the number of tags in each dataset. \cr
+		\code{chrl=NULL}: a vector of chromosomes. \cr
+		\code{rngl=NULL}: a list of chromosomal regions. \cr
 		}
 	}
 }
 \section{Methods}{
-	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
+	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}, so please look into 
+	class \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}} for more details:
 	\describe{
 		\item{\code{set.ChIP(ChIP)}}{
 		}		
@@ -56,7 +63,7 @@ Objects of class \code{smoothedTagDensity} can be created from
 	}
 	Methods overridden from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
 	\describe{
-		\item{\code{set.param()}}{
+		\item{\code{set.param(...)}}{
 		}			
 		\item{\code{get.profile()}}{
 		}

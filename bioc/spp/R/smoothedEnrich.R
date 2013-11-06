@@ -13,27 +13,13 @@ smoothedEnrich$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
-#		callSuper(...)
-#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
-#	.ChIP <<- NULL
-#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
-#	.Input <<- NULL
-#		if(is.null(.ChIP)) {
-#			if(!is.null(ChIP))
-#				.ChIP <<- ChIP
-#		}
-#		if(is.null(.Input)) {
-#			if(!is.null(Input))
-#				.Input <<- Input
-#		}
-#		if(is.null(.profile))
-#			.profile <<- NULL
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
 		##--new object
 		if(is.null(.param))	{
 			##initialize default .param
+			##!to delete: scale_by_dataset_size and npseudo
 			.param <<- list(bandwidth=150, bg_weight=NULL, tag_shift=NULL, 
 				step=50, bg_density_scaling=TRUE, rngl=NULL, chrl=NULL, 
 				scale_by_dataset_size=F, npseudo=1)

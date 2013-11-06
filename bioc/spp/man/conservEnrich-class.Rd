@@ -2,7 +2,6 @@
 \docType{class}
 \alias{conservEnrich-class}
 \alias{conservEnrich}
-\alias{get.profile,conservEnrich-method}
 \title{
 A reference class representing conservative fold enrichment profiles
 }
@@ -27,12 +26,38 @@ Objects of class \code{conservEnrich} can be created from
 		a variable for caching profile temporarily
 		}
 		\item{\code{.param}:}{
-		a list of parameters used to compute profile
+		a list of parameters used to compute profile. Parameters (and default settings) are: \cr
+		\code{fws=500}: foreground window size. \cr
+		\code{bwsl=c(1, 5, 25, 50)*500}: background window size list. \cr
+		\code{tag_shift=NULL}: Distance by which the positive and negative strand tags should 
+		be shifted towards eachother. This normally corresponds to the half of the 
+		cross-correlation peak position. The parameter should be set at initialization, if 
+		cross correlation has already been calculated in the object of class \code{AlignedTags}. \cr
+		\code{step=50}: spacing between positions at which the enrichment/depletion is evaluated. 
+		The parameter can be tuned to achieve a balance between the resolution and memory 
+		consumption when visualizing the profile using method \code{view}. \cr
+		\code{alpha=0.05}: desired level of statistical significance. \cr
+		\code{use_most_informative_scale=FALSE}: if TRUE, for each position, instead of evaluating 
+		enrichment ratio bounds for all background window scales, choose the one with the highest 
+		observed density to speed up the calculations. \cr
+		\code{quick_cal=TRUE}: if TRUE, Use square root transformation method instead of a Bayesian 
+		method. This speeds up the caclulation considerably. \cr
+		\code{bg_density_scaling=TRUE}: if TRUE, regions of significant tag enrichment will be 
+		masked out when calculating size ratio of the signal to control datasets (to estimate ratio 
+		of the background tag density). If FALSE, the dataset ratio will be equal to the ratio of 
+		the number of tags in each dataset. \cr
+		\code{bg_weight=NULL}:optional weight by which the background density should be 
+		multipled for scaling. If not supplied, the weight is calculated based on the ratio of 
+		the reduced ChIP to input dataset sizes. The parameter is calculated and set at the 
+		first time the profile is computed. \cr
+		\code{chrl=NULL}: a vector of chromosomes. \cr
+		\code{rngl=NULL}: a list of chromosomal regions. \cr
 		}
 	}
 }
 \section{Methods}{
-	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}:
+	Methods inherited from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}, so please look into 
+	class \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}} for more details:
 	\describe{
 		\item{\code{set.ChIP(ChIP)}}{
 		}		
@@ -49,7 +74,7 @@ Objects of class \code{conservEnrich} can be created from
 	}
 	Methods overridden from \code{\link[spp:ChIPSeqProfile]{ChIPSeqProfile}}: 
 	\describe{
-		\item{\code{set.param()}}{
+		\item{\code{set.param(...)}}{
 		}			
 		\item{\code{get.profile()}}{
 		}

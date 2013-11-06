@@ -9,28 +9,13 @@ smoothedTagDensity = setRefClass(
 smoothedTagDensity$methods(
 	initialize = function(..., ChIP=NULL, Input=NULL, param=NULL) {
 		callSuper(..., ChIP=ChIP, Input=Input)
-#		callSuper(...)
-#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
-#	.ChIP <<- NULL
-#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
-#	.Input <<- NULL
-#
-#		if(is.null(.ChIP)) {
-#			if(!is.null(ChIP))
-#				.ChIP <<- ChIP
-#		}
-#		if(is.null(.Input)) {
-#			if(!is.null(Input))
-#				.Input <<- Input
-#		}
-#		if(is.null(.profile))
-#			.profile <<- NULL
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
 		##--new object
 		if(is.null(.param))	{
 			##initialize default .param
+			##!to delete: scale_by_dataset_size
 			.param <<- list(tag_shift=NULL, bandwidth=150, step=50, 
 				rngl=NULL, chrl=NULL, bg_density_scaling=TRUE, 
 				scale_by_dataset_size=FALSE)
@@ -127,8 +112,6 @@ smoothedTagDensity$methods(
 
 smoothedTagDensity$methods(
 	get.profile = function() {
-
-
 		profile <- 
 			get.smoothed.tag.density(signal.tags=.ChIP$tags, 
 				bandwidth=.param$bandwidth, bg.weight=NULL, 

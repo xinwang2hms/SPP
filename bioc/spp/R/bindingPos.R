@@ -13,28 +13,13 @@ bindingPos$methods(
 			!is(Input, "AlignedTags_Or_NULL"))
 			stop("'ChIP' and 'Input' should be AlingedTags objects or 'NULL'!")	
 		callSuper(..., ChIP=ChIP, Input=Input)
-#		callSuper(...)
-#if(!is.null(.ChIP) && !is(.ChIP, "AlignedTags"))
-#	.ChIP <<- NULL
-#if(!is.null(.Input) && !is(.Input, "AlignedTags"))
-#	.Input <<- NULL
-#		if(is.null(.ChIP)) {
-#			if(!is.null(ChIP))
-#				.ChIP <<- ChIP
-#		}
-#		if(is.null(.Input)) {
-#			if(!is.null(Input))
-#				.Input <<- Input
-#		}
-#		if(is.null(.profile))
-#			.profile <<- NULL
-		
 		##3. set .param		
 		if(!is(param, "list_Or_NULL"))
 			stop("'param' should be a list of parameters or 'NULL'!")
 		##--new object
 		if(is.null(.param))	{
 			##initialize default .param
+			##!to delete: f, tec, n_ctr_samples, enrichment_scale_down_ctr?, chrl
 			.param <<- list(
 				f=1, e_value=NULL, fdr=NULL, masked_data=NULL, whs=NULL, 
 				min_dist=200, window_size=4e7, nrand=3, 
