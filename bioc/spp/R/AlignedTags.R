@@ -319,8 +319,62 @@ AlignedTags$methods(
 )
 
 
+## Get NRF scores (Non Redundant Fraction)
+AlignedTags$methods(
+        NRF = function(sizeAdjustmentThreshold=10e6) {
+
+                # total number of tags
+                ALL_TAGS<-sum(sapply(tags, length))
+
+                # total number of unique positions (with strand specificity)
+                UNIQUE_TAGS<-sum(sapply(lapply(tags, unique), length))
+
+                # total number of unique positions (without strand specificity)
+                UNIQUE_TAGS_nostrand<-sum(sapply(lapply(tags, FUN=function(x) {unique(abs(x))}), length))
+
+                # Non Redundant Fraction
+                NRF<-UNIQUE_TAGS/ALL_TAGS
+                # Non Redundant Fraction without strand specificity
+                NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
 
+                # With very large libsizes the non redundant fraction might decrease due to
+                # the sequencing depth being extremely high rather than the library complxity being low
+                ## to compensate for lib size differences we try recomputing the NRF with a subset of 10million reads
+
+                # handle the taglist as a vector instead than as a list for uniform sampling across cheomosomes
+                nomi<-rep(names(tags), sapply(tags, length))
+                chip.data<-unlist(tags)
+                names(chip.data)<-NULL
+                # use chsomosome names + reads positions (strand specific) for counting unique tags
+                chip.data<-paste(nomi, chip.data, sep="")
+
+
+                # if larger than 10 million do resampling
+                if (ALL_TAGS > sizeAdjustmentThreshold) {
+                    # actually compute the mean over 100 random samplings
+                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
+                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold))))
+                })))
+                } else {
+                # if less than 10 million reads do resampling with replacement...
+                ## (this is still under evaluation, it's not good) because the result is smaller than total NRF
+                ## one possibility could be to take the best (higher) NRF among this one and the NRF compute on the entire taglist object
+                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
+                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold, replace=TRUE))))
+                })))
+                }
+
+                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/sizeAdjustmentThreshold
+
+                # return a vector with NRF scores
+                STATS_NRF<-c(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
+                UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
+                NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
+
+                return(STATS_NRF)
+        }
+)
 
 
 
