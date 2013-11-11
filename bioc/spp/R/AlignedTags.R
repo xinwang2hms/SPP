@@ -500,7 +500,42 @@ AlignedTags$methods(
         }
 )
 
-
+AlignedTags$methods(
+	phantom_peak = function(read_length, srange=c(50,500), bin=5) {
+		
+		#bd_chrtcs <- AlignedTags$get.cross.cor
+		
+		# Phantom peak (shift = read_length) of cross correlation
+		ph_peakidx <- which( ( bd_chrtcs$cross_cor$x >= ( read_length - round(2*bin) ) ) & 
+		( bd_chrtcs$cross_cor$x <= ( read_length + round(1.5*bin) ) ) )
+		ph_peakidx <- ph_peakidx[ which.max(bd_chrtcs$cross_cor$y[ph_peakidx]) ]
+		bd_chrtcs$phantom_cc <- bd_chrtcs$cross_cor[ph_peakidx,]
+		
+		# Minimum value of cross correlation in srange
+		bd_chrtcs$min_cc <- bd_chrtcs$cross_cor[ which.min(bd_chrtcs$cross_cor$y) , ]
+		
+		# Normalized Strand cross-correlation coefficient (NSC)
+		bd_chrtcs$nsc <- bd_chrtcs$peak$y / bd_chrtcs$min_cc$y
+		
+		# Relative Strand Cross correlation Coefficient (RSC)
+		bd_chrtcs$rsc <- (bd_chrtcs$peak$y - bd_chrtcs$min_cc$y) / (bd_chrtcs$phantom_cc$y - bd_chrtcs$min_cc$y)
+		
+		# Quality flag based on RSC value
+		bd_chrtcs$phantom_quality_flag <- NA
+		if ( (bd_chrtcs$rsc >= 0) & (bd_chrtcs$rsc < 0.25) ) {
+			bd_chrtcs$phantom_quality_flag <- -2
+		} else if ( (bd_chrtcs$rsc >= 0.25) & (bd_chrtcs$rsc < 0.5) ) {
+			bd_chrtcs$phantom_quality_flag <- -1
+		} else if ( (bd_chrtcs$rsc >= 0.5) & (bd_chrtcs$rsc < 1) ) {
+			bd_chrtcs$phantom_quality_flag <- 0
+		} else if ( (bd_chrtcs$rsc >= 1) & (bd_chrtcs$rsc < 1.5) ) {
+			bd_chrtcs$phantom_quality_flag <- 1
+		} else if ( (bd_chrtcs$rsc >= 1.5) ) {
+			bd_chrtcs$phantom_quality_flag <- 2
+		}
+	
+	}
+)
 
 
 
