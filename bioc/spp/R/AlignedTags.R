@@ -53,6 +53,7 @@ AlignedTags$methods(
 		}	
 	}
 )
+
 ##2. get a subset 
 AlignedTags$methods(
 	subset = function(filter, ...) {
@@ -73,6 +74,34 @@ AlignedTags$methods(
 			stop("'filter' should either be a vector of chromosomes")
 	}
 )
+
+##sampling
+AlignedTags$methods(
+	sampling = function(f, replace=FALSE) {
+		if(!is.numeric(f)) 
+			stop("f should be numeric!")
+		if(f<0)
+			stop("f should be > 0!")
+		if(is.null(tags))
+			stop("Tags not read yet!")
+
+		trash <- sapply(1:length(tags), function(x) {
+			inds <- sample(1:length(tags[[x]]), round(f*length(tags[[x]])), 
+				replace=replace)
+			inds <- inds[order(inds, decreasing=FALSE)]
+			tags[[x]] <<- tags[[x]][inds]
+			if(!is.null(quality))
+				quality[[x]] <<- quality[[x]][inds]
+			if(!is.null(names)) {
+				if(replace)
+					names[[x]] <<- NULL
+				else
+					names[[x]] <<- names[[x]][inds]
+			}
+		})
+	}
+)
+
 
 
 ##3. remove tag anomalies

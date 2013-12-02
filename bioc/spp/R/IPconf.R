@@ -55,9 +55,62 @@ IPconf$methods(
 			binding_position <<- bindingPos(binding_position)	
 	}
 )
+
+##save object of IPconf to rds file
+IPconf$methods(
+	save = function(file, what="config", ...) {
+		if(missing(file))
+			stop("Please specify file name!")
+		if(! what %in% c("config", "all"))
+			stop("Please specify what to save: only configuration or including AlignedTags objects?")
+		if(what=="config") {
+			.ChIP <<- NULL
+			.Input <<- NULL
+			smoothed_enrichment$.ChIP <<- NULL
+			smoothed_enrichment$.Input <<- NULL
+			conserv_enrichment$.ChIP <<- NULL
+			conserv_enrichment$.Input <<- NULL
+			binding_position$.ChIP <<- NULL
+			binding_position$.Input <<- NULL
+			broad_region$.ChIP <<- NULL
+			broad_region$.Input <<- NULL
+		}
+		conf <- .self
+		saveRDS(conf, file=file)
+}
+)
+
+
+##set ChIP and Input
+##!should set recursively for each attribute
+##!if more attributes are added in the future, this part 
+##should be revised
+IPconf$methods(
+	set.ChIP = function(ChIP) {
+		.ChIP <<- ChIP
+		smoothed_enrichment$.ChIP <<- ChIP
+		conserv_enrichment$.ChIP <<- ChIP
+		binding_position$.ChIP <<- ChIP
+		broad_region$.ChIP <<- ChIP
+	}
+)
+IPconf$methods(
+	set.Input = function(Input) {
+		.Input <<- Input
+		smoothed_enrichment$.Input <<- Input
+		conserv_enrichment$.Input <<- Input
+		binding_position$.Input <<- Input
+		broad_region$.Input <<- Input
+	}
+)
+
+
+
+
 IPconf$methods(
 	show = function(...) {	
-
+		##General message
+		cat("~~IP configuration~~\n")
 		##message about Input
 		if(!is.null(.Input)) {
 			cat("Input:\n")

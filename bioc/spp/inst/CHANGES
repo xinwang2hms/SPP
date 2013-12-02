@@ -1,3 +1,8 @@
+--Nov 8, 2013
+* Add reference class ChIPSeq and methods
+* Add method sampling to AlignedTags
+* Add method save to IPconf
+* Add method set.ChIP and set.Input to IPconf
 --Oct 7, 2013
 * Chance S4 methods 'get.bd.chrtcs' and 'set.bd.chrtcs' to reference methods
 * Move the method to compute smoothed tag density from ChIPSeqProfile 

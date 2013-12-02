@@ -3,6 +3,7 @@
 \alias{AlignedTags-class}
 \alias{AlignedTags}
 \alias{subset}
+\alias{sampling}
 \alias{remove.tag.anomalies}
 \alias{compute.cross.cor}
 \alias{get.smoothed.density}
@@ -55,6 +56,12 @@ subclasses such as \code{BAMTags} and \code{BowtieTags}.
 		Filter the object by chromosomes. \cr
 		\emph{Arguments} \cr
 		\code{filter}: a character vector of chromosome names: e.g. c("chr1", "chr2"). 
+		}
+		\item{\code{sampling(f, replace=FALSE)}}{
+		Sampling tags in the object (NOTE: make a copy before you do sampling). \cr
+		\emph{Arguments} \cr
+		\code{f}: fraction of the total number of tags to choose. \cr
+		\code{replace}: should sampling be with replacement? \cr
 		}
 		\item{\code{remove.tag.anomalies(bin=1, trim_fraction=1e-3, z=5, 
 		zo=3*z, var_base=0.1)}}{

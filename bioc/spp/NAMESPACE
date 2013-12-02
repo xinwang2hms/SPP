@@ -10,7 +10,8 @@ exportClasses(
 	"conservEnrich", 
 	"broadRegion", 
 	"bindingPos", 
-	"IPconf"
+	"IPconf", 
+	"ChIPSeq"
 )
 
 export(
@@ -23,5 +24,6 @@ export(
 	"conservEnrich", 
 	"broadRegion", 
 	"bindingPos", 
-	"IPconf"
+	"IPconf",
+	"ChIPSeq"
 )

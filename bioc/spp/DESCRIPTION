@@ -5,7 +5,7 @@ Version: 0.0.1
 Date: 2013-11-06
 Author: Xin Wang <xin_wang@hms.harvard.edu>, Peter Kharchenko <peter.kharchenko@post.harvard.edu>
 Maintainer: Xin Wang <xin_wang@hms.harvard.edu>
-Imports: caTools, methods, multicore
+Imports: caTools, methods, multicore, R.utils
 Depends: R (>= 3.0.1)
 Description: This package provides reference classes and methods for analyzing ChIP-Seq data 
 License: GPL-2
@@ -13,5 +13,5 @@ biocViews: Sequencing, HighThroughputSequencing, ChIPseq
 Collate: internal.R classUnions.R AllGenerics.R ChIPSeqProfile.R 
 		smoothedTagDensity.R AlignedTags.R BAMTags.R BowtieTags.R 
 		smoothedEnrich.R broadRegion.R conservEnrich.R bindingPos.R 
-		IPconf.R
+		IPconf.R ChIPSeq.R
 LazyLoad: yes
