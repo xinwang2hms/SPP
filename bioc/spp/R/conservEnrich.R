@@ -68,6 +68,11 @@ conservEnrich$methods(
 	}
 )
 conservEnrich$methods(
+	update = function() {
+		invisible(conservEnrich(.self))
+	}
+)
+conservEnrich$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
 	}

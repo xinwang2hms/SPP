@@ -11,7 +11,7 @@ exportClasses(
 	"broadRegion", 
 	"bindingPos", 
 	"IPconf", 
-	"ChIPSeq"
+	"Dataset"
 )
 
 export(
@@ -25,5 +25,5 @@ export(
 	"broadRegion", 
 	"bindingPos", 
 	"IPconf",
-	"ChIPSeq"
+	"Dataset"
 )

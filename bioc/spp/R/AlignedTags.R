@@ -7,20 +7,23 @@ AlignedTags = setRefClass(
 	fields = list(
 		file = "char_Or_NULL", 				##read from file later	
 		genome_build = "char_Or_NULL",			##e.g. mm9, hg19
-##		read_length = "numeric_Or_NULL", 		##read length
-		tags = "list_Or_NULL", 				
+		read_length = "numeric_Or_NULL", 		##read length
+		tags = "list_Or_NULL", 				##sequence tags
 		quality = "list_Or_NULL",			##not in use actually 
 		names = "list_Or_NULL", 			
 		bd_chrtcs = "list_Or_NULL", 			##binding characteristics
+		qc = "list_Or_NULL",				##quality control
 		smoothed_density = "smoothedTagDensity_Or_NULL"
 	)
 )
 setClassUnion("AlignedTags_Or_NULL", c("AlignedTags", "NULL"))
 AlignedTags$methods(
-	initialize = function(..., genome_build=NULL) {
+	initialize = function(..., genome_build=NULL, read_length=NULL) {
 		callSuper(...)
 		if(is.null(.self$genome_build))
 			genome_build <<- genome_build
+		if(is.null(.self$read_length))
+			read_length <<- read_length
 		if(is.null(smoothed_density))
 			smoothed_density <<- smoothedTagDensity(ChIP=.self)
 		else {
@@ -30,12 +33,25 @@ AlignedTags$methods(
 		}
 	}
 )
+##object size
+AlignedTags$methods(
+	size = function() {
+		s <- object.size(file) + object.size(genome_build) + 
+			object.size(read_length) + object.size(tags) + 
+			object.size(quality) + object.size(names) + 
+			object.size(bd_chrtcs) + smoothed_density$size()
+		return(s)
+	}
+)
+
+
 ##1. display a brief summary of the object
 AlignedTags$methods(
 	show = function(...) {
 		nchrs <- length(tags)
 		ntags <- sum(unlist(lapply(tags, length)))
-		cat(as.character(class(.self)), "object:\n")
+		cat("~~", as.character(class(.self)), "object~~\n")
+		cat("  total size: ", object.size.format(.self$size()), "\n", sep="")
 		if(!is.null(tags)) {
 			cat(paste("  ", ntags, " fragments", " across ", nchrs, 
 				" chromosome(s)", "\n", sep=""))			
@@ -51,6 +67,17 @@ AlignedTags$methods(
 			cat(paste("  optimized window half-size: ", 
 				bd_chrtcs$whs, "\n", sep=""))
 		}	
+		if(!is.null(qc)) {
+			cat("Quality control:\n")
+			if(!is.null(qc$phantom_peak))
+				cat("  NSC=", round(qc$phantom_peak$NSC, 2), ", RSC=", 
+					round(qc$phantom_peak$RSC, 2), ", Quality flag: ", 
+					qc$phantom_peak$quality_flag, "\n", sep="")
+			if(!is.null(qc$NRF))
+				cat("  NRF=", round(qc$NRF$NRF, 2), ", NRF (no strand)=", 
+					round(qc$NRF$NRF_nostrand, 2), ", NRF (adjusted)=", 
+					round(qc$NRF$NRF_LibSizeadjusted, 2), "\n", sep="")
+		}
 	}
 )
 
@@ -168,7 +195,7 @@ AlignedTags$methods(
 
 ##4. compute binding characteristics
 AlignedTags$methods(
-	compute.cross.cor = function(srange=c(50,500), bin=5, 
+	compute.cross.cor = function(srange=c(-100,500), bin=5, 
 		min_tag_count=1e3, acceptance_z_score=3, 
 		accept_all_tags=FALSE, ...) {
 		
@@ -303,6 +330,8 @@ AlignedTags$methods(
 ##		}			
 		if(is.null(bd_chrtcs)) 
 			bd_chrtcs <<- list()
+		bd_chrtcs$param <<- list(srange=srange, bin=bin, min_tag_count=min_tag_count, 
+			acceptance_z_score=acceptance_z_score, accept_all_tags=accept_all_tags)
 		bd_chrtcs$cross_cor <<- ccl.av
 		bd_chrtcs$peak <<- list(x=ccl.av$x[pi],y=ccl.av$y[pi])
 		bd_chrtcs$whs <<- whs
@@ -318,7 +347,10 @@ AlignedTags$methods(
 			stop("Please run 'compute.cross.cor' first!")
 		plot(bd_chrtcs$cross_cor, type='l', xlab="strand shift", 
 			ylab="cross-correlation")
-		abline(v=bd_chrtcs$peak$x, lty=2, col=2)				
+		abline(v=bd_chrtcs$peak$x, lty=2, lwd=3, col='red')
+		if(!is.null(qc) && !is.null(qc$phantom_peak)) {
+			abline(v=qc$phantom_peak$phantom_cc$x, lty=2, lwd=1, col='blue')
+		}	
 	}
 )
 
@@ -349,9 +381,9 @@ AlignedTags$methods(
 
 
 ## Get NRF scores (Non Redundant Fraction)
+## if resampling==TRUE, size_adj_thresh and nsamp are used; otherwise not. 
 AlignedTags$methods(
-        NRF = function(sizeAdjustmentThreshold=10e6) {
-
+        NRF = function(adjust=FALSE, size_adj_thresh=10e6, nsamp=100) {
                 # total number of tags
                 ALL_TAGS<-sum(sapply(tags, length))
 
@@ -372,258 +404,118 @@ AlignedTags$methods(
                 ## to compensate for lib size differences we try recomputing the NRF with a subset of 10million reads
 
                 # handle the taglist as a vector instead than as a list for uniform sampling across cheomosomes
-                nomi<-rep(names(tags), sapply(tags, length))
-                chip.data<-unlist(tags)
-                names(chip.data)<-NULL
+##		nomi<-rep(names(tags), sapply(tags, length))
+##		chip.data<-unlist(tags)
+##		names(chip.data)<-NULL
                 # use chsomosome names + reads positions (strand specific) for counting unique tags
-                chip.data<-paste(nomi, chip.data, sep="")
+##		chip.data<-paste(nomi, chip.data, sep="")
+		NRF_LibSizeadjusted <- NA
+	if(adjust) {
+		chr_n_tags <- unlist(lapply(tags, length))
+		chr_samp_tags <- round(size_adj_thresh*chr_n_tags/sum(chr_n_tags))
 
+		spp.cores <- getOption("spp.cores")
 
                 # if larger than 10 million do resampling
-                if (ALL_TAGS > sizeAdjustmentThreshold) {
+                if (ALL_TAGS > size_adj_thresh) {
                     # actually compute the mean over 100 random samplings
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold))))
-                })))
+##			UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:nsamp, FUN=function(x) {
+##				return(length(unique(sample(chip.data, size=size_adj_thresh))))
+##               	 	})))
+			if(!is.null(spp.cores) && spp.cores>1 
+				&& "package:multicore" %in% search() && nsamp > 1) {
+				UNIQUE_TAGS_LibSizeadjusted <- round(mean(unlist(mclapply(1:nsamp, function(x) {
+					sum(unlist(sapply(1:length(tags), function(xx) 
+						length(unique(sample(tags[[xx]], chr_samp_tags[xx]))))))},
+					mc.cores=spp.cores, mc.preschedule=F
+				))))
+			} else {
+				UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:nsamp, function(x) {
+				sum(unlist(sapply(1:length(tags), function(xx) 
+					length(unique(sample(tags[[xx]], chr_samp_tags[xx]))))))
+				})))
+			}
                 } else {
                 # if less than 10 million reads do resampling with replacement...
                 ## (this is still under evaluation, it's not good) because the result is smaller than total NRF
                 ## one possibility could be to take the best (higher) NRF among this one and the NRF compute on the entire taglist object
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold, replace=TRUE))))
-                })))
+##                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:nsamp, FUN=function(x) {
+##                    return(length(unique(sample(chip.data, size=size_adj_thresh, replace=TRUE))))
+##                })))
+			if(!is.null(spp.cores) && spp.cores>1
+				&& "package:multicore" %in% search() && nsamp > 1) {
+				UNIQUE_TAGS_LibSizeadjusted <- round(mean(unlist(mclapply(1:nsamp, function(x) {
+					sum(unlist(sapply(1:length(tags), function(xx) 
+						length(unique(sample(tags[[xx]], chr_samp_tags[xx], replace=TRUE))))))},
+					mc.cores=spp.cores, mc.preschedule=F
+				))))
+				
+			} else {
+				UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:nsamp, function(x) {
+				sum(unlist(sapply(1:length(tags), function(xx) 
+					length(unique(sample(tags[[xx]], chr_samp_tags[xx], replace=TRUE))))))
+				})))
+			}
                 }
 
-                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/sizeAdjustmentThreshold
-
+                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/size_adj_thresh
+	}
                 # return a vector with NRF scores
-                STATS_NRF<-c(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
-                UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
-                NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
-
-                return(STATS_NRF)
+                STATS_NRF<-list(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
+                	UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
+                	NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
+		
+		##update NRF stats to qc
+		if(is.null(qc))
+			qc <<- list()
+		qc$NRF <<- STATS_NRF
+		cat("NRF=", round(STATS_NRF$NRF, 2), ", NRF (no strand)=", round(STATS_NRF$NRF_nostrand, 2), 
+			", NRF (adjusted)=", round(STATS_NRF$NRF_LibSizeadjusted, 2), "\n", sep="")
+                invisible(STATS_NRF)
         }
 )
 
 AlignedTags$methods(
-	phantom_peak = function(read_length, srange=c(50,500), bin=5) {
-		
+	phantomPeak = function() {
+		if(is.null(bd_chrtcs))
+			stop("Please run 'get.cross.cor' first!")
 		#bd_chrtcs <- AlignedTags$get.cross.cor
 		
 		# Phantom peak (shift = read_length) of cross correlation
-		ph_peakidx <- which( ( bd_chrtcs$cross_cor$x >= ( read_length - round(2*bin) ) ) & 
-		( bd_chrtcs$cross_cor$x <= ( read_length + round(1.5*bin) ) ) )
+		ph_peakidx <- which( ( bd_chrtcs$cross_cor$x >= ( read_length - round(2*bd_chrtcs$param$bin) ) ) & 
+		( bd_chrtcs$cross_cor$x <= ( read_length + round(1.5*bd_chrtcs$param$bin) ) ) )
 		ph_peakidx <- ph_peakidx[ which.max(bd_chrtcs$cross_cor$y[ph_peakidx]) ]
-		bd_chrtcs$phantom_cc <- bd_chrtcs$cross_cor[ph_peakidx,]
+		phantom_cc <- bd_chrtcs$cross_cor[ph_peakidx,]
 		
 		# Minimum value of cross correlation in srange
-		bd_chrtcs$min_cc <- bd_chrtcs$cross_cor[ which.min(bd_chrtcs$cross_cor$y) , ]
+		min_cc <- bd_chrtcs$cross_cor[ which.min(bd_chrtcs$cross_cor$y) , ]
 		
 		# Normalized Strand cross-correlation coefficient (NSC)
-		bd_chrtcs$nsc <- bd_chrtcs$peak$y / bd_chrtcs$min_cc$y
+		NSC <- bd_chrtcs$peak$y / min_cc$y
 		
 		# Relative Strand Cross correlation Coefficient (RSC)
-		bd_chrtcs$rsc <- (bd_chrtcs$peak$y - bd_chrtcs$min_cc$y) / (bd_chrtcs$phantom_cc$y - bd_chrtcs$min_cc$y)
+		RSC <- (bd_chrtcs$peak$y - min_cc$y) / (phantom_cc$y - min_cc$y)
 		
 		# Quality flag based on RSC value
-		bd_chrtcs$phantom_quality_flag <- NA
-		if ( (bd_chrtcs$rsc >= 0) & (bd_chrtcs$rsc < 0.25) ) {
-			bd_chrtcs$phantom_quality_flag <- -2
-		} else if ( (bd_chrtcs$rsc >= 0.25) & (bd_chrtcs$rsc < 0.5) ) {
-			bd_chrtcs$phantom_quality_flag <- -1
-		} else if ( (bd_chrtcs$rsc >= 0.5) & (bd_chrtcs$rsc < 1) ) {
-			bd_chrtcs$phantom_quality_flag <- 0
-		} else if ( (bd_chrtcs$rsc >= 1) & (bd_chrtcs$rsc < 1.5) ) {
-			bd_chrtcs$phantom_quality_flag <- 1
-		} else if ( (bd_chrtcs$rsc >= 1.5) ) {
-			bd_chrtcs$phantom_quality_flag <- 2
+		qflag <- NA
+		if ( (RSC >= 0) & (RSC < 0.25) ) {
+			qflag <- -2
+		} else if ( (RSC >= 0.25) & (RSC < 0.5) ) {
+			qflag <- -1
+		} else if ( (RSC >= 0.5) & (RSC < 1) ) {
+			qflag <- 0
+		} else if ( (RSC >= 1) & (RSC < 1.5) ) {
+			qflag <- 1
+		} else if ( (RSC >= 1.5) ) {
+			qflag <- 2
 		}
-	
+		##update stats to qc
+		if(is.null(qc))
+			qc <<- list()
+		phantom_peak <- list(phantom_cc=phantom_cc, NSC=NSC, RSC=RSC, quality_flag=qflag)
+		qc$phantom_peak <<- phantom_peak
+		cat("NSC=", round(NSC, 2), ", RSC=", round(RSC, 2), ", Quality flag: ", qflag, "\n", sep="")
+		invisible(phantom_peak)
 	}
 )
-
-
-## Get NRF scores (Non Redundant Fraction)
-AlignedTags$methods(
-        NRF = function(sizeAdjustmentThreshold=10e6) {
-
-                # total number of tags
-                ALL_TAGS<-sum(sapply(tags, length))
-
-                # total number of unique positions (with strand specificity)
-                UNIQUE_TAGS<-sum(sapply(lapply(tags, unique), length))
-
-                # total number of unique positions (without strand specificity)
-                UNIQUE_TAGS_nostrand<-sum(sapply(lapply(tags, FUN=function(x) {unique(abs(x))}), length))
-
-                # Non Redundant Fraction
-                NRF<-UNIQUE_TAGS/ALL_TAGS
-                # Non Redundant Fraction without strand specificity
-                NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
-
-
-                # With very large libsizes the non redundant fraction might decrease due to
-                # the sequencing depth being extremely high rather than the library complxity being low
-                ## to compensate for lib size differences we try recomputing the NRF with a subset of 10million reads
-
-                # handle the taglist as a vector instead than as a list for uniform sampling across cheomosomes
-                nomi<-rep(names(tags), sapply(tags, length))
-                chip.data<-unlist(tags)
-                names(chip.data)<-NULL
-                # use chsomosome names + reads positions (strand specific) for counting unique tags
-                chip.data<-paste(nomi, chip.data, sep="")
-
-
-                # if larger than 10 million do resampling
-                if (ALL_TAGS > sizeAdjustmentThreshold) {
-                    # actually compute the mean over 100 random samplings
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold))))
-                })))
-                } else {
-                # if less than 10 million reads do resampling with replacement...
-                ## (this is still under evaluation, it's not good) because the result is smaller than total NRF
-                ## one possibility could be to take the best (higher) NRF among this one and the NRF compute on the entire taglist object
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold, replace=TRUE))))
-                })))
-                }
-
-                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/sizeAdjustmentThreshold
-
-                # return a vector with NRF scores
-                STATS_NRF<-c(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
-                UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
-                NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
-
-                return(STATS_NRF)
-        }
-)
-
-AlignedTags$methods(
-	phantom_peak = function(read_length, srange=c(50,500), bin=5) {
-		
-		#bd_chrtcs <- AlignedTags$get.cross.cor
-		
-		# Phantom peak (shift = read_length) of cross correlation
-		ph_peakidx <- which( ( bd_chrtcs$cross_cor$x >= ( read_length - round(2*bin) ) ) & 
-		( bd_chrtcs$cross_cor$x <= ( read_length + round(1.5*bin) ) ) )
-		ph_peakidx <- ph_peakidx[ which.max(bd_chrtcs$cross_cor$y[ph_peakidx]) ]
-		bd_chrtcs$phantom_cc <- bd_chrtcs$cross_cor[ph_peakidx,]
-		
-		# Minimum value of cross correlation in srange
-		bd_chrtcs$min_cc <- bd_chrtcs$cross_cor[ which.min(bd_chrtcs$cross_cor$y) , ]
-		
-		# Normalized Strand cross-correlation coefficient (NSC)
-		bd_chrtcs$nsc <- bd_chrtcs$peak$y / bd_chrtcs$min_cc$y
-		
-		# Relative Strand Cross correlation Coefficient (RSC)
-		bd_chrtcs$rsc <- (bd_chrtcs$peak$y - bd_chrtcs$min_cc$y) / (bd_chrtcs$phantom_cc$y - bd_chrtcs$min_cc$y)
-		
-		# Quality flag based on RSC value
-		bd_chrtcs$phantom_quality_flag <- NA
-		if ( (bd_chrtcs$rsc >= 0) & (bd_chrtcs$rsc < 0.25) ) {
-			bd_chrtcs$phantom_quality_flag <- -2
-		} else if ( (bd_chrtcs$rsc >= 0.25) & (bd_chrtcs$rsc < 0.5) ) {
-			bd_chrtcs$phantom_quality_flag <- -1
-		} else if ( (bd_chrtcs$rsc >= 0.5) & (bd_chrtcs$rsc < 1) ) {
-			bd_chrtcs$phantom_quality_flag <- 0
-		} else if ( (bd_chrtcs$rsc >= 1) & (bd_chrtcs$rsc < 1.5) ) {
-			bd_chrtcs$phantom_quality_flag <- 1
-		} else if ( (bd_chrtcs$rsc >= 1.5) ) {
-			bd_chrtcs$phantom_quality_flag <- 2
-		}
-	
-	}
-)
-
-
-## Get NRF scores (Non Redundant Fraction)
-AlignedTags$methods(
-        NRF = function(sizeAdjustmentThreshold=10e6) {
-
-                # total number of tags
-                ALL_TAGS<-sum(sapply(tags, length))
-
-                # total number of unique positions (with strand specificity)
-                UNIQUE_TAGS<-sum(sapply(lapply(tags, unique), length))
-
-                # total number of unique positions (without strand specificity)
-                UNIQUE_TAGS_nostrand<-sum(sapply(lapply(tags, FUN=function(x) {unique(abs(x))}), length))
-
-                # Non Redundant Fraction
-                NRF<-UNIQUE_TAGS/ALL_TAGS
-                # Non Redundant Fraction without strand specificity
-                NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
-
-
-                # With very large libsizes the non redundant fraction might decrease due to
-                # the sequencing depth being extremely high rather than the library complxity being low
-                ## to compensate for lib size differences we try recomputing the NRF with a subset of 10million reads
-
-                # handle the taglist as a vector instead than as a list for uniform sampling across cheomosomes
-                nomi<-rep(names(tags), sapply(tags, length))
-                chip.data<-unlist(tags)
-                names(chip.data)<-NULL
-                # use chsomosome names + reads positions (strand specific) for counting unique tags
-                chip.data<-paste(nomi, chip.data, sep="")
-
-
-                # if larger than 10 million do resampling
-                if (ALL_TAGS > sizeAdjustmentThreshold) {
-                    # actually compute the mean over 100 random samplings
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold))))
-                })))
-                } else {
-                # if less than 10 million reads do resampling with replacement...
-                ## (this is still under evaluation, it's not good) because the result is smaller than total NRF
-                ## one possibility could be to take the best (higher) NRF among this one and the NRF compute on the entire taglist object
-                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
-                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold, replace=TRUE))))
-                })))
-                }
-
-                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/sizeAdjustmentThreshold
-
-                # return a vector with NRF scores
-                STATS_NRF<-c(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
-                UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
-                NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
-
-                return(STATS_NRF)
-        }
-)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

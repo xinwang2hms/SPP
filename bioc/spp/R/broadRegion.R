@@ -69,6 +69,18 @@ broadRegion$methods(
 	}
 )
 
+broadRegion$methods(
+	update = function() {
+		invisible(broadRegion(.self))
+	}
+)
+broadRegion$methods(
+	size = function() {
+		s <- object.size(.param) + object.size(.profile) + object.size(.param.updated)
+		return(s)
+	}
+)
+
 
 broadRegion$methods(
 	set.param = function(..., verbose=TRUE) {

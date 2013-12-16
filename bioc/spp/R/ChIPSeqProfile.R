@@ -9,6 +9,7 @@ ChIPSeqProfile = setRefClass(
 		.param = "list_Or_NULL"			##parameters
 	)
 )
+
 ChIPSeqProfile$methods(
 	initialize = function(..., ChIP=NULL, Input=NULL) {
 		.ChIP <<- NULL
@@ -37,6 +38,15 @@ ChIPSeqProfile$methods(
 			.profile <<- NULL			
 	}
 )
+
+##object size
+ChIPSeqProfile$methods(
+	size = function() {
+		s <- object.size(.profile) + object.size(.param)
+		return(s)
+	}
+)
+
 ##set reference to ChIP
 ChIPSeqProfile$methods(
 	set.ChIP = function(ChIP) {
@@ -235,11 +245,11 @@ ChIPSeqProfile$methods(
 #			}							
 #		}
 		##message about parameters
-		if(!is.null(.param)) {
+##		if(!is.null(.param)) {
 ##			cat("Parameters:\n")
 ##			cat(paste("  ", paste(paste(names(.param), .param, sep="="), 
 ##				collapse=', '), "\n", sep=""))
-		}	
+##		}	
 	}
 )
 ChIPSeqProfile$methods(
