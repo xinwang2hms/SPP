@@ -348,10 +348,99 @@ AlignedTags$methods(
 )
 
 
+## Get NRF scores (Non Redundant Fraction)
+AlignedTags$methods(
+        NRF = function(sizeAdjustmentThreshold=10e6) {
+
+                # total number of tags
+                ALL_TAGS<-sum(sapply(tags, length))
+
+                # total number of unique positions (with strand specificity)
+                UNIQUE_TAGS<-sum(sapply(lapply(tags, unique), length))
+
+                # total number of unique positions (without strand specificity)
+                UNIQUE_TAGS_nostrand<-sum(sapply(lapply(tags, FUN=function(x) {unique(abs(x))}), length))
+
+                # Non Redundant Fraction
+                NRF<-UNIQUE_TAGS/ALL_TAGS
+                # Non Redundant Fraction without strand specificity
+                NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
 
+                # With very large libsizes the non redundant fraction might decrease due to
+                # the sequencing depth being extremely high rather than the library complxity being low
+                ## to compensate for lib size differences we try recomputing the NRF with a subset of 10million reads
+
+                # handle the taglist as a vector instead than as a list for uniform sampling across cheomosomes
+                nomi<-rep(names(tags), sapply(tags, length))
+                chip.data<-unlist(tags)
+                names(chip.data)<-NULL
+                # use chsomosome names + reads positions (strand specific) for counting unique tags
+                chip.data<-paste(nomi, chip.data, sep="")
 
 
+                # if larger than 10 million do resampling
+                if (ALL_TAGS > sizeAdjustmentThreshold) {
+                    # actually compute the mean over 100 random samplings
+                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
+                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold))))
+                })))
+                } else {
+                # if less than 10 million reads do resampling with replacement...
+                ## (this is still under evaluation, it's not good) because the result is smaller than total NRF
+                ## one possibility could be to take the best (higher) NRF among this one and the NRF compute on the entire taglist object
+                UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x) {
+                    return(length(unique(sample(chip.data, size=sizeAdjustmentThreshold, replace=TRUE))))
+                })))
+                }
+
+                NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/sizeAdjustmentThreshold
+
+                # return a vector with NRF scores
+                STATS_NRF<-c(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS,
+                UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF,
+                NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
+
+                return(STATS_NRF)
+        }
+)
+
+AlignedTags$methods(
+	phantom_peak = function(read_length, srange=c(50,500), bin=5) {
+		
+		#bd_chrtcs <- AlignedTags$get.cross.cor
+		
+		# Phantom peak (shift = read_length) of cross correlation
+		ph_peakidx <- which( ( bd_chrtcs$cross_cor$x >= ( read_length - round(2*bin) ) ) & 
+		( bd_chrtcs$cross_cor$x <= ( read_length + round(1.5*bin) ) ) )
+		ph_peakidx <- ph_peakidx[ which.max(bd_chrtcs$cross_cor$y[ph_peakidx]) ]
+		bd_chrtcs$phantom_cc <- bd_chrtcs$cross_cor[ph_peakidx,]
+		
+		# Minimum value of cross correlation in srange
+		bd_chrtcs$min_cc <- bd_chrtcs$cross_cor[ which.min(bd_chrtcs$cross_cor$y) , ]
+		
+		# Normalized Strand cross-correlation coefficient (NSC)
+		bd_chrtcs$nsc <- bd_chrtcs$peak$y / bd_chrtcs$min_cc$y
+		
+		# Relative Strand Cross correlation Coefficient (RSC)
+		bd_chrtcs$rsc <- (bd_chrtcs$peak$y - bd_chrtcs$min_cc$y) / (bd_chrtcs$phantom_cc$y - bd_chrtcs$min_cc$y)
+		
+		# Quality flag based on RSC value
+		bd_chrtcs$phantom_quality_flag <- NA
+		if ( (bd_chrtcs$rsc >= 0) & (bd_chrtcs$rsc < 0.25) ) {
+			bd_chrtcs$phantom_quality_flag <- -2
+		} else if ( (bd_chrtcs$rsc >= 0.25) & (bd_chrtcs$rsc < 0.5) ) {
+			bd_chrtcs$phantom_quality_flag <- -1
+		} else if ( (bd_chrtcs$rsc >= 0.5) & (bd_chrtcs$rsc < 1) ) {
+			bd_chrtcs$phantom_quality_flag <- 0
+		} else if ( (bd_chrtcs$rsc >= 1) & (bd_chrtcs$rsc < 1.5) ) {
+			bd_chrtcs$phantom_quality_flag <- 1
+		} else if ( (bd_chrtcs$rsc >= 1.5) ) {
+			bd_chrtcs$phantom_quality_flag <- 2
+		}
+	
+	}
+)
 
 
 
