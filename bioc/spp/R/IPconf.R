@@ -13,6 +13,17 @@ IPconf = setRefClass(
 		binding_position = "bindingPos_Or_NULL"
 	)
 )
+
+IPconf$methods(
+	size = function() {
+		s <- ifelse(is.null(smoothed_enrichment), 0, smoothed_enrichment$size()) + 
+			ifelse(is.null(conserv_enrichment), 0, conserv_enrichment$size()) + 
+			ifelse(is.null(broad_region), 0, broad_region$size()) + 
+			ifelse(is.null(binding_position), 0, binding_position$size())
+		return(s)
+	}
+)
+
 IPconf$methods(
 	initialize = function(..., ChIP=NULL, Input=NULL) {
 		callSuper(...)
@@ -55,7 +66,11 @@ IPconf$methods(
 			binding_position <<- bindingPos(binding_position)	
 	}
 )
-
+IPconf$methods(
+	update = function() {
+		invisible(IPconf(.self))
+	}
+)
 ##save object of IPconf to rds file
 IPconf$methods(
 	save = function(file, what="config", ...) {
@@ -111,6 +126,7 @@ IPconf$methods(
 	show = function(...) {	
 		##General message
 		cat("~~IP configuration~~\n")
+		cat("  total size: ", object.size.format(.self$size()), "\n", sep="")
 		##message about Input
 		if(!is.null(.Input)) {
 			cat("Input:\n")

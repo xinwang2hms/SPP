@@ -71,7 +71,17 @@ bindingPos$methods(
 		##--copied object
 	}
 )
-
+bindingPos$methods(
+	update = function() {
+		invisible(bindingPos(.self))
+	}
+)
+bindingPos$methods(
+	size = function() {
+		s <- object.size(.param) + object.size(.profile) + object.size(.param.updated)
+		return(s)
+	}
+)
 bindingPos$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)

@@ -67,6 +67,11 @@ smoothedEnrich$methods(
 	}
 )
 smoothedEnrich$methods(
+	update = function() {
+		invisible(smoothedEnrich(.self))
+	}
+)
+smoothedEnrich$methods(
 	set.param = function(..., verbose=TRUE) {
 		callSuper(..., verbose=TRUE)
 	}

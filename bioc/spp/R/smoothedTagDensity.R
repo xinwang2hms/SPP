@@ -69,6 +69,11 @@ smoothedTagDensity$methods(
 	}
 )
 smoothedTagDensity$methods(
+	update = function() {
+		invisible(smoothedTagDensity(.self))
+	}
+)
+smoothedTagDensity$methods(
 	set.param = function(..., verbose=TRUE) {		
 		if(!is.null(.ChIP) && length(.ChIP$tags) > 0) {
 			##

@@ -50,7 +50,11 @@ BAMTags$methods(
 ##	}
 ##)
 
-
+BAMTags$methods(
+	update = function() {
+		invisible(BAMTags(.self))
+	}
+)
 
 
 

@@ -44,7 +44,11 @@ BowtieTags$methods(
 	}
 )
 
-
+BowtieTags$methods(
+	update = function() {
+		invisible(BowtieTags(.self))
+	}
+)
 
 
 

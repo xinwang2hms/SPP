@@ -1309,5 +1309,16 @@ write.probe.wig <- function(chr,pos,val,fname,append=F,feature="M",probe.length=
 }
 
 
+##formatting bytes to Kb, Mb or Gb
+object.size.format <- function(x) {
+	if(x<1024) return(paste(x, " bytes", sep=""))
+	else if(x>=1024 && x < 1024^2) return(paste(round(x/1024, 2), " Kb", sep=""))
+	else if(x>=1024^2 && x<1024^3) return(paste(round(x/(1024^2), 2), " Mb", sep=""))
+	else if(x>=1024^3) return(paste(round(x/(1024^3), 2), " Gb", sep=""))
+}
+
+
+
+
 
 

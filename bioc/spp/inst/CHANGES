@@ -1,8 +1,43 @@
+--Dec 16, 2013
+* Rename ChIPSeq class to Dataset class
+--Dec 11, 2013
+* ChIPSeq class:	added a list of methods for managing samples and IP configurations
+*			pipeline-like function to create, process and save AlignedTags objects for all samples of interest
+*			sample pairing function
+* AlignedTags class:	added and optimised QC methods phantomPeak and NRF, displaying QC message
+*			plot phantom peak if available
+* Memory control strategy of ChIPSeq class: load, get, save, close methods
+*			-AlignedTags objects and IPconf objects are saved separately, but can be linked
+*			-load: load saved objects (AlignedTags or IPconf)
+*			-get: return reference to one or multiple AlignedTags/IPconf objects (one you have the ref, everything 
+*			      can be done to the object and ChIPSeq class manages all these references internally)
+*				--If loaded already, return reference
+*				--else if saved in file, load saved object
+*				--else if not existing, create a new object with specified parameters
+*				--IPconf object can only be created when corresponding ChIP and Input AlignedTags objects 
+*				  are loaded or saved in file
+*			-save: save one or multiple AlignedTags or IPconf objects
+*				--save in the save directory: specify 'dirname' + 'prefix'
+*				--save in different places: specify 'files'
+*			-close: remove one or multiple AlignedTags or IPconf objects from memory
+* Sample pairing strategy: sample.pairing method
+*			-filtering
+*				--'samples': input pre-selected sample IDs
+*				--'filter_def': list of filtering criteria, e.g. filter_def=list(ChromatinBatch="20100608", Sex="F")
+*			-stratfying/grouping conditions
+*				--'cond_def': vector of factors, e.g. cond_def=c("Age", "Diet")
+*			-under each condition, look for ChIP and Input
+*				--'ChIP_def': list of criteria, e.g. ChIP_def=list(IP=c("h3k9me3"))
+*				--'Input_def': list of criteria, e.g. Input_def=list(Diet="Normal", IP="input")
+* Other new features:	trace memory usage for objects of class 'ChIPSeq', 'AlignedTags', 'ChIPSeqProfile' and 'IPconf'
+*			update method for class 'ChIPSeq', 'AlignedTags', 'ChIPSeqProfile' and 'IPconf'
+
 --Nov 8, 2013
 * Add reference class ChIPSeq and methods
 * Add method sampling to AlignedTags
 * Add method save to IPconf
 * Add method set.ChIP and set.Input to IPconf
+
 --Oct 7, 2013
 * Chance S4 methods 'get.bd.chrtcs' and 'set.bd.chrtcs' to reference methods
 * Move the method to compute smoothed tag density from ChIPSeqProfile 
