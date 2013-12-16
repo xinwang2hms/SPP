@@ -1,5 +1,6 @@
 --Dec 16, 2013
 * Rename ChIPSeq class to Dataset class
+* Change version from 0.0.1 to 2.0.1
 --Dec 11, 2013
 * ChIPSeq class:	added a list of methods for managing samples and IP configurations
 *			pipeline-like function to create, process and save AlignedTags objects for all samples of interest

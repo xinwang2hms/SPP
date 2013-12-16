@@ -1,7 +1,7 @@
 Package: spp
 Type: Package
 Title: An R package for ChIP-Seq data analysis
-Version: 0.0.1
+Version: 2.0.1
 Date: 2013-12-16
 Author: Xin Wang <xin_wang@hms.harvard.edu>, Peter Kharchenko <peter.kharchenko@post.harvard.edu>
 Maintainer: Xin Wang <xin_wang@hms.harvard.edu>
